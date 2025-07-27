@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -21,7 +22,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  MapPin,
+  SearchX
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -37,35 +40,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import type { Attraction} from "@/types/attractions.type";
+import type { Attraction, AttractionCategory} from "@/types/attractions.type";
 
 interface AttractionTableProps {
   attractions: Attraction[];
-  currentFilter: string;
+  selectedCategory: AttractionCategory | null;
 }
 
 
-const AttractionTable = ({ attractions, currentFilter }: AttractionTableProps) => {
+const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const navigate = useNavigate();
 
-  // Filter attractions based on current route and search term
   const getFilteredAttractions = () => {
     let filtered = attractions;
-    
-    // Filter by category based on route
-    if (currentFilter === 'national-parks') {
-      filtered = filtered.filter(attraction => attraction.category === 'national-parks');
-    } else if (currentFilter === 'cultural-heritage') {
-      filtered = filtered.filter(attraction => attraction.category === 'cultural-heritage');
+
+    if (selectedCategory) {
+      filtered = filtered.filter(attraction => 
+        attraction.attraction_category_id === selectedCategory.id
+      );
     }
-    
-    // Filter by search term
-    if (searchTerm) {
+
+    if (searchTerm.trim()) {
       filtered = filtered.filter(attraction => 
         attraction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        attraction.location.toLowerCase().includes(searchTerm.toLowerCase())
+        attraction.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        attraction.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -74,13 +76,11 @@ const AttractionTable = ({ attractions, currentFilter }: AttractionTableProps) =
 
   const filteredAttractions = getFilteredAttractions();
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredAttractions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentAttractions = filteredAttractions.slice(startIndex, endIndex);
 
-  // Reset to first page when search term changes
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -90,16 +90,82 @@ const AttractionTable = ({ attractions, currentFilter }: AttractionTableProps) =
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
 
-  // Function to get the page title based on current filter
   const getPageTitle = () => {
-    switch (currentFilter) {
-      case 'national-parks':
-        return 'National Parks';
-      case 'cultural-heritage':
-        return 'Cultural & Heritage Sites';
-      default:
-        return 'All Attractions';
+    if (searchTerm.trim()) {
+      return selectedCategory 
+        ? `Search in ${selectedCategory.name}` 
+        : `Search Results`;
     }
+    if (selectedCategory) {
+      return selectedCategory.name;
+    }
+    return 'All Attractions';
+  };
+
+  const EmptyState = () => {
+    const isFiltered = searchTerm.trim() || selectedCategory;
+    
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+          {isFiltered ? (
+            <SearchX className="w-12 h-12 text-gray-400" />
+          ) : (
+            <MapPin className="w-12 h-12 text-gray-400" />
+          )}
+        </div>
+        
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          {isFiltered ? 'No attractions found' : 'No attractions yet'}
+        </h3>
+        
+        <p className="text-gray-500 text-center max-w-sm mb-6">
+          {isFiltered ? (
+            searchTerm.trim() ? (
+              selectedCategory ? (
+                <>No attractions in {selectedCategory.name} match "{searchTerm}". Try different keywords or browse other categories.</>
+              ) : (
+                <>No attractions match your search "{searchTerm}". Try different keywords or browse categories.</>
+              )
+            ) : (
+              <>No attractions found in {selectedCategory?.name}. Try browsing other categories.</>
+            )
+          ) : (
+            'Get started by adding your first attraction to showcase amazing destinations.'
+          )}
+        </p>
+        
+        {!isFiltered && (
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add First Attraction
+          </Button>
+        )}
+        
+        {isFiltered && (
+          <div className="flex gap-2">
+            {searchTerm.trim() && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleSearch('')}
+              >
+                Clear Search
+              </Button>
+            )}
+            {selectedCategory && !searchTerm.trim() && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/attractions')}
+              >
+                View All Attractions
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -136,43 +202,57 @@ const AttractionTable = ({ attractions, currentFilter }: AttractionTableProps) =
           </Button>
         </div>
       </div>
-        <Table>
-          <TableHeader className="bg-gray-100 rounded-t-md">
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Visitors</TableHead>
-              <TableHead>Last Updated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      
+      {currentAttractions.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <>
+          <Table>
+            <TableHeader className="bg-gray-100 rounded-t-md">
+              <TableRow>
+                <TableHead>Image</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Rating</TableHead>
+                <TableHead>Reviews</TableHead>
+                <TableHead>Last Updated</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
             {currentAttractions.map((attraction) => (
               <TableRow key={attraction.id}>
+                <TableCell>
+                  {attraction.thumbnail ? <img 
+                    src='/image_placeholder.png'
+                    alt={attraction.name}
+                    className="w-12 h-12 object-cover rounded-md"
+                    
+                  />: <img 
+                    src={attraction.thumbnail} 
+                    alt={attraction.name}
+                    className="w-12 h-12 object-cover rounded-md"
+                  /> }
+                  
+                </TableCell>
                 <TableCell className="font-medium">{attraction.name}</TableCell>
-                <TableCell>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    attraction.category === 'national-parks' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-blue-100 text-blue-800'
-                  }`}>
-                    {attraction.category === 'national-parks' ? 'National Park' : 'Cultural Site'}
-                  </span>
+                <TableCell className="text-gray-600 max-w-xs truncate">
+                  {attraction.description}
                 </TableCell>
-                <TableCell className="text-gray-600">{attraction.location}</TableCell>
+                <TableCell className="text-gray-600">{attraction.address}</TableCell>
                 <TableCell>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    attraction.status === 'Active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {attraction.status}
-                  </span>
+                  <div className="flex items-center">
+                    <span className="text-yellow-500 mr-1">★</span>
+                    <span>{attraction.rating.toFixed(1)}</span>
+                  </div>
                 </TableCell>
-                <TableCell className="text-gray-600">{attraction.visitors.toLocaleString()}</TableCell>
-                <TableCell className="text-gray-600">{attraction.lastUpdated}</TableCell>
+                <TableCell className="text-gray-600">
+                  {attraction.reviews_count} reviews
+                </TableCell>
+                <TableCell className="text-gray-600">
+                  {new Date(attraction.updated_at).toLocaleDateString()}
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -201,75 +281,79 @@ const AttractionTable = ({ attractions, currentFilter }: AttractionTableProps) =
           </TableBody>
         </Table>
 
-      <div className="flex items-center justify-between px-2 py-4">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
-          <Select
-            value={itemsPerPage.toString()}
-            onValueChange={(value) => {
-              setItemsPerPage(Number(value));
-              setCurrentPage(1);
-            }}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side="top">
-              <SelectItem value="5">5</SelectItem>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Page {currentPage} of {totalPages}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Showing {startIndex + 1} to {Math.min(endIndex, filteredAttractions.length)} of {filteredAttractions.length} results
-          </div>
+        {filteredAttractions.length > 0 && (
+          <div className="flex items-center justify-between px-2 py-4">
           <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => goToPage(1)}
-              disabled={currentPage === 1}
+            <p className="text-sm font-medium">Rows per page</p>
+            <Select
+              value={itemsPerPage.toString()}
+              onValueChange={(value) => {
+                setItemsPerPage(Number(value));
+                setCurrentPage(1);
+              }}
             >
-              <span className="sr-only">Go to first page</span>
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <span className="sr-only">Go to previous page</span>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <span className="sr-only">Go to next page</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => goToPage(totalPages)}
-              disabled={currentPage === totalPages}
-            >
-              <span className="sr-only">Go to last page</span>
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent side="top">
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex items-center space-x-6 lg:space-x-8">
+            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredAttractions.length)} of {filteredAttractions.length} results
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+                onClick={() => goToPage(1)}
+                disabled={currentPage === 1}
+              >
+                <span className="sr-only">Go to first page</span>
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+                onClick={() => goToPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                <span className="sr-only">Go to last page</span>
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+        )}
+        </>
+      )}
     </Card>
   );
 };

@@ -1,86 +1,49 @@
 
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import AttractionTable from "./components/AttractionTable";
-import type { Attraction } from "@/types/attractions.type";
+import { useAttractions } from "@/hooks/useAttractions";
+import { useAttractionCategories } from "@/hooks/useAttractionCategories";
+import { categoryToSlug } from "@/lib/utils";
 
 const AttractionsPage = () => {
-  const location = useLocation();
+  const { categorySlug } = useParams<{ categorySlug?: string }>();
+  const { categories } = useAttractionCategories();
 
-  // Sample data for attractions
-  const allAttractions: Attraction[] = [
-    {
-      id: 1,
-      name: "Volcanoes National Park",
-      category: "national-parks",
-      location: "Musanze District",
-      status: "Active",
-      visitors: 15420,
-      lastUpdated: "2024-12-15"
-    },
-    {
-      id: 2,
-      name: "Akagera National Park", 
-      category: "national-parks",
-      location: "Eastern Province",
-      status: "Active",
-      visitors: 12350,
-      lastUpdated: "2024-12-14"
-    },
-    {
-      id: 3,
-      name: "Nyungwe National Park",
-      category: "national-parks", 
-      location: "Southern Province",
-      status: "Active",
-      visitors: 8790,
-      lastUpdated: "2024-12-13"
-    },
-    {
-      id: 4,
-      name: "Kigali Genocide Memorial",
-      category: "cultural-heritage",
-      location: "Kigali City",
-      status: "Active", 
-      visitors: 25600,
-      lastUpdated: "2024-12-16"
-    },
-    {
-      id: 5,
-      name: "King's Palace Museum",
-      category: "cultural-heritage",
-      location: "Nyanza District",
-      status: "Active",
-      visitors: 5430,
-      lastUpdated: "2024-12-12"
-    },
-    {
-      id: 6,
-      name: "Ethnographic Museum",
-      category: "cultural-heritage",
-      location: "Huye District", 
-      status: "Maintenance",
-      visitors: 3200,
-      lastUpdated: "2024-12-10"
-    }
-  ];
-  
-  // Determine the current filter based on the route
-  const getCurrentFilter = () => {
-    if (location.pathname.includes('/national-parks')) {
-      return 'national-parks';
-    } else if (location.pathname.includes('/cultural-heritage')) {
-      return 'cultural-heritage';
-    }
-    return 'all';
-  };
+  const selectedCategory = categorySlug 
+    ? categories.find(cat => categoryToSlug(cat.name) === categorySlug) || null
+    : null;
 
-  const currentFilter = getCurrentFilter();
+  const { data: attractionsData = [], isLoading, error } = useAttractions(
+    selectedCategory?.id
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading attractions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading attractions: {error.message}</p>
+          <p className="text-gray-600 text-sm">Using sample data for now.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <AttractionTable 
-        attractions={allAttractions} 
-        currentFilter={currentFilter} 
+        attractions={attractionsData} 
+        selectedCategory={selectedCategory}
       />
     </div>
   );
