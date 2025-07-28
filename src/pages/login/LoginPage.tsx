@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -22,13 +22,24 @@ import { EyeIcon, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.png";
-import { useNavigate } from "react-router-dom";
 import { signInSchema } from "@/lib/schemaValidation";
+import { useLogin, useAuth } from "@/hooks/useAuth";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const LoginPage = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string>("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const loginMutation = useLogin();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || '/attractions';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -43,15 +54,34 @@ const LoginPage = () => {
   });
 
   async function onSubmit(values: z.infer<typeof signInSchema>) {
-    console.log(values);
-    setIsSubmitting(true);
-    navigate("/");
-    form.reset();
+    setLoginError("");
+    
+    loginMutation.mutate(values, {
+      onSuccess: () => {
+        form.reset();
+        setLoginError("");
+
+        const from = location.state?.from?.pathname || '/attractions';
+        navigate(from, { replace: true });
+      },
+      onError: (error: any) => {
+        console.error('Login error:', error);
+
+        if (error?.response?.status === 401 || error?.response?.status === 400) {
+          setLoginError("Invalid email or password. Please check your credentials and try again.");
+        } else if (error?.response?.status === 422) {
+          setLoginError("Please check your email format and password requirements.");
+        } else if (error?.message?.includes('Network Error') || error?.code === 'ERR_NETWORK') {
+          setLoginError("Unable to connect to the server. Please check your internet connection.");
+        } else {
+          setLoginError("An unexpected error occurred. Please try again later.");
+        }
+      }
+    });
   }
 
   return (
     <>
-   
       <div className="fixed top-0 left-0 right-0 flex h-14 items-center px-6 lg:h-[60px] z-50">
         <div className="flex items-center gap-3 font-bold">
        
@@ -65,17 +95,14 @@ const LoginPage = () => {
       </div>
 
       <div className="relative w-full min-h-screen flex justify-center items-center pt-14">
-        {/* Diagonal split background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0">
-            {/* Gradient section */}
             <div
               className="absolute inset-0 bg-gradient-to-br from-orange-400 via-green-400 to-blue-400"
               style={{
                 clipPath: "polygon(100% 0, 100% 100%, 0 100%, 100% 25%)",
               }}
             />
-            {/* White section */}
             <div
               className="absolute inset-0 bg-white"
               style={{
@@ -95,6 +122,12 @@ const LoginPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              
+                  {loginError && (
+                    <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                      {loginError}
+                    </div>
+                  )}
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
@@ -155,7 +188,7 @@ const LoginPage = () => {
                   />
 
                   <div className="space-y-4">
-                    {isSubmitting ? (
+                    {loginMutation.isPending ? (
                       <Button disabled className="w-full h-11 text-lg">
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing in...

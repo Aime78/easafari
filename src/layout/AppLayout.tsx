@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,15 +10,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLogout, useAuth } from "@/hooks/useAuth";
 import Sidebar from "./Sidebar";
 // import { Toaster } from "@/components/ui/sonner";
 
 const AppLayout = () => {
-  const navigate = useNavigate();
-  
-  async function logout() {
-    navigate("/login");
-  }
+  const logout = useLogout();
+  const { user } = useAuth();
+
+  const getUserInitials = (name?: string, email?: string) => {
+    if (name) {
+      return name
+        .split(' ')
+        .map(word => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    if (email) {
+      return email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
     <div className="grid min-h-screen md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr] bg-[#f6f8fc]">
@@ -34,10 +47,12 @@ const AppLayout = () => {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@username"
+                      src=""
+                      alt={user?.name || user?.email}
                     />
-                    <AvatarFallback className="bg-gray-200">UN</AvatarFallback>
+                    <AvatarFallback className="bg-gray-200">
+                      {getUserInitials(user?.name, user?.email)}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -49,10 +64,10 @@ const AppLayout = () => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium text-gray-900">
-                      Uwineza Bienheureuse
+                      {user?.name || 'User'}
                     </p>
                     <p className="text-xs text-gray-600">
-                      uwinezabienheureuse@gmail.com
+                      {user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>

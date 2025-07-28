@@ -1,25 +1,32 @@
 import AppLayout from "@/layout/AppLayout";
 import AttractionsPage from "@/pages/attractions/AttractionsPage";
 import LoginPage from "@/pages/login/LoginPage";
+import ProtectedRoute from "@/components/custom/ProtectedRoute";
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate,
 } from "react-router-dom";
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <AppLayout />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
     children: [
+      {
+        index: true,
+        element: <Navigate to="/attractions" replace />
+      },
       {
         path: "attractions",
         element: <AttractionsPage />
       },
       {
-        path: "attractions/national-parks",
-        element: <AttractionsPage />
-      },
-      {
-        path: "attractions/cultural-heritage",
+        path: "attractions/:categorySlug",
         element: <AttractionsPage />
       }
     ]

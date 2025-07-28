@@ -1,0 +1,109 @@
+import axios from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { LoginResponse } from "@/types/auth.type";
+import type { AttractionCategory, Attraction } from "@/types/attractions.type";
+
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://161.35.164.109/api';
+
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+axiosInstance.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error) => {
+    if (error.response) {
+      // Handle 401 Unauthorized - redirect to login
+      if (error.response.status === 401) {
+        // Clear stored auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
+        // Redirect to login page if not already there
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+      
+      // Server responded with error status
+      throw new Error(`API Error: ${error.response.status} ${error.response.statusText}`);
+    } else if (error.request) {
+      // Request was made but no response received
+      throw new Error('Network Error: No response received');
+    } else {
+      // Something else happened
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+);
+
+export const apiRequest = async <T>(
+  endpoint: string,
+  options: AxiosRequestConfig = {}
+): Promise<T> => {
+  const response = await axiosInstance.request<T>({
+    url: endpoint,
+    ...options,
+  });
+  
+  return response.data;
+};
+
+export const api = {
+  get: <T>(endpoint: string, options?: AxiosRequestConfig) =>
+    apiRequest<T>(endpoint, { method: 'GET', ...options }),
+    
+  post: <T>(endpoint: string, data?: any, options?: AxiosRequestConfig) =>
+    apiRequest<T>(endpoint, {
+      method: 'POST',
+      data,
+      ...options,
+    }),
+    
+  put: <T>(endpoint: string, data?: any, options?: AxiosRequestConfig) =>
+    apiRequest<T>(endpoint, {
+      method: 'PUT',
+      data,
+      ...options,
+    }),
+    
+  patch: <T>(endpoint: string, data?: any, options?: AxiosRequestConfig) =>
+    apiRequest<T>(endpoint, {
+      method: 'PATCH',
+      data,
+      ...options,
+    }),
+    
+  delete: <T>(endpoint: string, options?: AxiosRequestConfig) =>
+    apiRequest<T>(endpoint, { method: 'DELETE', ...options }),
+};
+
+export const authApi = {
+  login: (credentials: { email: string; password: string }) =>
+    api.post<LoginResponse>('/auth/login', credentials),
+};
+
+export const attractionsApi = {
+  getCategories: () =>
+    api.get<AttractionCategory[]>('/attractions/categories'),
+  createCategory: (data: { name: string }) =>
+    api.post<AttractionCategory>('/attractions/categories', data),
+  search: (query: string) =>
+    api.get<Attraction[]>(`/attractions/all/search?query=${encodeURIComponent(query)}`),
+};
