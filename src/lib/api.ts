@@ -106,4 +106,10 @@ export const attractionsApi = {
     api.post<AttractionCategory>('/attractions/categories', data),
   search: (query: string) =>
     api.get<Attraction[]>(`/attractions/all/search?query=${encodeURIComponent(query)}`),
+  create: (data: FormData) =>
+    api.post<Attraction>('/attractions', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
 };

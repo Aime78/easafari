@@ -1,7 +1,7 @@
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
-export const ToastNotification = {
+export const toastNotification = {
   success: (title: string, message: string) => {
     toast(
       <div className="flex flex-col gap-1">
