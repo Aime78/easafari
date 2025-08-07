@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { AddAttractionDialog } from "./AddAttractionDialog";
 import type { Attraction, AttractionCategory} from "@/types/attractions.type";
 
 interface AttractionTableProps {
@@ -136,10 +137,12 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
         </p>
         
         {!isFiltered && (
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add First Attraction
-          </Button>
+          <AddAttractionDialog>
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add First Attraction
+            </Button>
+          </AddAttractionDialog>
         )}
         
         {isFiltered && (
@@ -196,10 +199,12 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Attraction
-          </Button>
+          <AddAttractionDialog>
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Attraction
+            </Button>
+          </AddAttractionDialog>
         </div>
       </div>
       
@@ -243,8 +248,11 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
                 <TableCell className="text-gray-600">{attraction.address}</TableCell>
                 <TableCell>
                   <div className="flex items-center">
-                    <span className="text-yellow-500 mr-1">★</span>
-                    <span>{attraction.rating.toFixed(1)}</span>
+                   
+                    {attraction.rating ? ( <><span className="text-yellow-500 mr-1">★</span>
+                    <span>{attraction.rating ? attraction.rating.toFixed(1) : "N/A"}</span></>) : (<span className="text-gray-600 text-center">-</span>)}
+                  
+                
                   </div>
                 </TableCell>
                 <TableCell className="text-gray-600">
