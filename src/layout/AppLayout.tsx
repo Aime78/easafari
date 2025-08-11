@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout, useAuth } from "@/hooks/useAuth";
 import Sidebar from "./Sidebar";
-// import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const AppLayout = () => {
   const logout = useLogout();
@@ -93,7 +93,7 @@ const AppLayout = () => {
           <ScrollArea className="h-[calc(100vh-120px)]">
             <div className="px-8 py-6 text-black">
               <Outlet />
-              {/* <Toaster /> */}
+              <Toaster />
             </div>
           </ScrollArea>
         </div>

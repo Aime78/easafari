@@ -7,6 +7,7 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
+import AccommodationsPage from "@/pages/accommodation/AccommodationsPage";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,14 @@ const router = createBrowserRouter([
       {
         path: "attractions/:categorySlug",
         element: <AttractionsPage />
+      },
+      {
+        path: "accommodations",
+        element: <AccommodationsPage />
+      },
+      {
+        path: "accommodations/:categorySlug",
+        element: <AccommodationsPage />
       }
     ]
   },

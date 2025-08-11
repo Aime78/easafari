@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -10,12 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { 
-  Plus, 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   Eye,
   Filter,
   Download,
@@ -40,47 +39,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { AddAttractionDialog } from "./AddAttractionDialog";
-import type { Attraction, AttractionCategory} from "@/types/attractions.type";
+import { AddAccommodationDialog } from "./AddAccommodationDialog";
+import type { Accommodation, AccommodationCategory } from "@/types/accommodations.type";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
-interface AttractionTableProps {
-  attractions: Attraction[];
-  selectedCategory: AttractionCategory | null;
+// types now imported from central types file
+
+interface AccommodationTableProps {
+  accommodations: Accommodation[];
+  selectedCategory: AccommodationCategory | null;
 }
 
-
-const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps) => {
+const AccommodationTable = ({ accommodations, selectedCategory }: AccommodationTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const navigate = useNavigate();
 
-  const getFilteredAttractions = () => {
-    let filtered = attractions;
+  const getFilteredAccommodations = () => {
+    let filtered = accommodations;
 
     if (selectedCategory) {
-      filtered = filtered.filter(attraction => 
-        attraction.attraction_category_id === selectedCategory.id
+      filtered = filtered.filter(acc => 
+        acc.accommodation_category_id === selectedCategory.id
       );
     }
 
     if (searchTerm.trim()) {
-      filtered = filtered.filter(attraction => 
-        attraction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        attraction.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        attraction.description.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(acc => 
+        acc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        acc.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        acc.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
     return filtered;
   };
 
-  const filteredAttractions = getFilteredAttractions();
-
-  const totalPages = Math.ceil(filteredAttractions.length / itemsPerPage);
+  const filteredAccommodations = getFilteredAccommodations();
+  const totalPages = Math.ceil(filteredAccommodations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentAttractions = filteredAttractions.slice(startIndex, endIndex);
+  const currentAccommodations = filteredAccommodations.slice(startIndex, endIndex);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -100,12 +98,11 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
     if (selectedCategory) {
       return selectedCategory.name;
     }
-    return 'All Attractions';
+    return 'All Accommodations';
   };
 
   const EmptyState = () => {
     const isFiltered = searchTerm.trim() || selectedCategory;
-    
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
@@ -115,36 +112,32 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
             <MapPin className="w-12 h-12 text-gray-400" />
           )}
         </div>
-        
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          {isFiltered ? 'No attractions found' : 'No attractions yet'}
+          {isFiltered ? 'No accommodations found' : 'No accommodations yet'}
         </h3>
-        
         <p className="text-gray-500 text-center max-w-sm mb-6">
           {isFiltered ? (
             searchTerm.trim() ? (
               selectedCategory ? (
-                <>No attractions in {selectedCategory.name} match "{searchTerm}". Try different keywords or browse other categories.</>
+                <>No accommodations in {selectedCategory.name} match "{searchTerm}". Try different keywords or browse other categories.</>
               ) : (
-                <>No attractions match your search "{searchTerm}". Try different keywords or browse categories.</>
+                <>No accommodations match your search "{searchTerm}". Try different keywords or browse categories.</>
               )
             ) : (
-              <>No attractions found in {selectedCategory?.name}. Try browsing other categories.</>
+              <>No accommodations found in {selectedCategory?.name}. Try browsing other categories.</>
             )
           ) : (
-            'Get started by adding your first attraction to showcase amazing destinations.'
+            'Get started by adding your first accommodation to showcase amazing stays.'
           )}
         </p>
-        
         {!isFiltered && (
-          <AddAttractionDialog>
+          <AddAccommodationDialog>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add First Attraction
+              Add First Accommodation
             </Button>
-          </AddAttractionDialog>
+          </AddAccommodationDialog>
         )}
-        
         {isFiltered && (
           <div className="flex gap-2">
             {searchTerm.trim() && (
@@ -160,9 +153,9 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => navigate('/attractions')}
+                // onClick={() => navigate('/accommodations')}
               >
-                View All Attractions
+                View All Accommodations
               </Button>
             )}
           </div>
@@ -177,12 +170,11 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{getPageTitle()}</h1>
         </div>
-        
         <div className="flex items-center gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search attractions..."
+              placeholder="Search accommodations..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-10 w-64"
@@ -193,32 +185,33 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
             Filter
           </Button>
         </div>
-        
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <AddAttractionDialog>
+          <AddAccommodationDialog>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add Attraction
+              Add Accommodation
             </Button>
-          </AddAttractionDialog>
+          </AddAccommodationDialog>
         </div>
       </div>
-      
-      {currentAttractions.length === 0 ? (
+      {currentAccommodations.length === 0 ? (
         <EmptyState />
       ) : (
         <>
+        <ScrollArea className="xl:w-[1150px]">
           <Table>
-            <TableHeader className="bg-gray-100 rounded-t-md">
+            <TableHeader className="bg-gray-100 rounded-t-md ">
               <TableRow>
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Address</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Amenities</TableHead>
                 <TableHead>Rating</TableHead>
                 <TableHead>Reviews</TableHead>
                 <TableHead>Last Updated</TableHead>
@@ -226,40 +219,41 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
               </TableRow>
             </TableHeader>
             <TableBody>
-            {currentAttractions.map((attraction) => (
-              <TableRow key={attraction.id}>
+            {currentAccommodations.map((acc) => (
+              <TableRow key={acc.id}>
                 <TableCell>
-                  {attraction.thumbnail ? <img 
-                    src={`http://161.35.164.109/${attraction.thumbnail}`}
-                    alt={attraction.name}
-                    className="w-12 h-12 object-cover rounded-md"
-                    
-                  />: <img 
-                    src={attraction.thumbnail} 
-                    alt={attraction.name}
-                    className="w-12 h-12 object-cover rounded-md"
-                  /> }
-                  
+                  {acc.thumbnail ? (
+                    <img
+                      src={`http://161.35.164.109/${acc.thumbnail}`}
+                      alt={acc.name}
+                      className="w-12 h-12 object-cover rounded-md"
+                    />
+                  ) : (
+                    <img
+                      src="/image_placeholder.png"
+                      alt={acc.name}
+                      className="w-12 h-12 object-cover rounded-md"
+                    />
+                  )}
                 </TableCell>
-                <TableCell className="font-medium">{attraction.name}</TableCell>
+                <TableCell className="font-medium">{acc.name}</TableCell>
                 <TableCell className="text-gray-600 max-w-xs truncate">
-                  {attraction.description}
+                  {acc.description}
                 </TableCell>
-                <TableCell className="text-gray-600">{attraction.address}</TableCell>
+                <TableCell className="text-gray-600">{acc.address}</TableCell>
+                <TableCell className="text-gray-600">${acc.price}</TableCell>
+                <TableCell className="text-gray-600">{acc.amenities}</TableCell>
                 <TableCell>
                   <div className="flex items-center">
-                   
-                    {attraction.rating ? ( <><span className="text-yellow-500 mr-1">★</span>
-                    <span>{attraction.rating ? attraction.rating.toFixed(1) : "N/A"}</span></>) : (<span className="text-gray-600 text-center">-</span>)}
-                  
-                
+                    {acc.rating ? ( <><span className="text-yellow-500 mr-1">★</span>
+                    <span>{acc.rating ? acc.rating.toFixed(1) : "N/A"}</span></>) : (<span className="text-gray-600 text-center">-</span>)}
                   </div>
                 </TableCell>
                 <TableCell className="text-gray-600">
-                  {attraction.reviews_count} reviews
+                  {acc.reviews_count} reviews
                 </TableCell>
                 <TableCell className="text-gray-600">
-                  {new Date(attraction.updated_at).toLocaleDateString()}
+                  {new Date(acc.updated_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -288,8 +282,12 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
             ))}
           </TableBody>
         </Table>
-
-        {filteredAttractions.length > 0 && (
+        <ScrollBar
+          orientation="horizontal"
+          className="opacity-0 hover:opacity-100 transition-opacity"
+        />
+        </ScrollArea>
+        {filteredAccommodations.length > 0 && (
           <div className="flex items-center justify-between px-2 py-4">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
@@ -311,13 +309,12 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
               </SelectContent>
             </Select>
           </div>
-          
           <div className="flex items-center space-x-6 lg:space-x-8">
             <div className="flex w-[100px] items-center justify-center text-sm font-medium">
               Page {currentPage} of {totalPages}
             </div>
             <div className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(endIndex, filteredAttractions.length)} of {filteredAttractions.length} results
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredAccommodations.length)} of {filteredAccommodations.length} results
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -366,4 +363,4 @@ const AttractionTable = ({ attractions, selectedCategory }: AttractionTableProps
   );
 };
 
-export default AttractionTable;
+export default AccommodationTable;
