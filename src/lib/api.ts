@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { LoginResponse } from "@/types/auth.type";
 import type { AttractionCategory, Attraction } from "@/types/attractions.type";
+import type { Accommodation, AccommodationCategory } from '@/types/accommodations.type';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://161.35.164.109/api';
 
@@ -108,6 +109,21 @@ export const attractionsApi = {
     api.get<Attraction[]>(`/attractions/all/search?query=${encodeURIComponent(query)}`),
   create: (data: FormData) =>
     api.post<Attraction>('/attractions', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
+};
+
+export const accommodationsApi = {
+  getCategories: () =>
+    api.get<AccommodationCategory[]>('/accommodations/categories'),
+  createCategory: (data: { name: string }) =>
+    api.post<AccommodationCategory>('/accommodations/categories', data),
+  search: (query: string) =>
+    api.get<Accommodation[]>(`/accommodations/all/search?query=${encodeURIComponent(query)}`),
+  create: (data: FormData) =>
+    api.post<Accommodation>('/accommodations', data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
