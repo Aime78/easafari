@@ -1,21 +1,25 @@
-import axios from 'axios';
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import type { LoginResponse } from "@/types/auth.type";
 import type { AttractionCategory, Attraction } from "@/types/attractions.type";
-import type { Accommodation, AccommodationCategory } from '@/types/accommodations.type';
+import type {
+  Accommodation,
+  AccommodationCategory,
+} from "@/types/accommodations.type";
+import type { Experience, ExperienceCategory } from "@/types/experiences.type";
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://161.35.164.109/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -33,20 +37,22 @@ axiosInstance.interceptors.response.use(
       // Handle 401 Unauthorized - redirect to login
       if (error.response.status === 401) {
         // Clear stored auth data
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
         // Redirect to login page if not already there
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
         }
       }
-      
+
       // Server responded with error status
-      throw new Error(`API Error: ${error.response.status} ${error.response.statusText}`);
+      throw new Error(
+        `API Error: ${error.response.status} ${error.response.statusText}`
+      );
     } else if (error.request) {
       // Request was made but no response received
-      throw new Error('Network Error: No response received');
+      throw new Error("Network Error: No response received");
     } else {
       // Something else happened
       throw new Error(`Request Error: ${error.message}`);
@@ -62,70 +68,101 @@ export const apiRequest = async <T>(
     url: endpoint,
     ...options,
   });
-  
+
   return response.data;
 };
 
 export const api = {
   get: <T>(endpoint: string, options?: AxiosRequestConfig) =>
-    apiRequest<T>(endpoint, { method: 'GET', ...options }),
-    
-  post: <T>(endpoint: string, data?: any, options?: AxiosRequestConfig) =>
+    apiRequest<T>(endpoint, { method: "GET", ...options }),
+
+  post: <T, D = Record<string, unknown> | FormData>(
+    endpoint: string,
+    data?: D,
+    options?: AxiosRequestConfig
+  ) =>
     apiRequest<T>(endpoint, {
-      method: 'POST',
+      method: "POST",
       data,
       ...options,
     }),
-    
-  put: <T>(endpoint: string, data?: any, options?: AxiosRequestConfig) =>
+
+  put: <T, D = Record<string, unknown> | FormData>(
+    endpoint: string,
+    data?: D,
+    options?: AxiosRequestConfig
+  ) =>
     apiRequest<T>(endpoint, {
-      method: 'PUT',
+      method: "PUT",
       data,
       ...options,
     }),
-    
-  patch: <T>(endpoint: string, data?: any, options?: AxiosRequestConfig) =>
+
+  patch: <T, D = Record<string, unknown> | FormData>(
+    endpoint: string,
+    data?: D,
+    options?: AxiosRequestConfig
+  ) =>
     apiRequest<T>(endpoint, {
-      method: 'PATCH',
+      method: "PATCH",
       data,
       ...options,
     }),
-    
+
   delete: <T>(endpoint: string, options?: AxiosRequestConfig) =>
-    apiRequest<T>(endpoint, { method: 'DELETE', ...options }),
+    apiRequest<T>(endpoint, { method: "DELETE", ...options }),
 };
 
 export const authApi = {
   login: (credentials: { email: string; password: string }) =>
-    api.post<LoginResponse>('/auth/login', credentials),
+    api.post<LoginResponse>("/auth/login", credentials),
 };
 
 export const attractionsApi = {
-  getCategories: () =>
-    api.get<AttractionCategory[]>('/attractions/categories'),
+  getCategories: () => api.get<AttractionCategory[]>("/attractions/categories"),
   createCategory: (data: { name: string }) =>
-    api.post<AttractionCategory>('/attractions/categories', data),
+    api.post<AttractionCategory>("/attractions/categories", data),
   search: (query: string) =>
-    api.get<Attraction[]>(`/attractions/all/search?query=${encodeURIComponent(query)}`),
+    api.get<Attraction[]>(
+      `/attractions/all/search?query=${encodeURIComponent(query)}`
+    ),
   create: (data: FormData) =>
-    api.post<Attraction>('/attractions', data, {
+    api.post<Attraction>("/attractions", data, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     }),
 };
 
 export const accommodationsApi = {
   getCategories: () =>
-    api.get<AccommodationCategory[]>('/accommodations/categories'),
+    api.get<AccommodationCategory[]>("/accommodations/categories"),
   createCategory: (data: { name: string }) =>
-    api.post<AccommodationCategory>('/accommodations/categories', data),
+    api.post<AccommodationCategory>("/accommodations/categories", data),
   search: (query: string) =>
-    api.get<Accommodation[]>(`/accommodations/all/search?query=${encodeURIComponent(query)}`),
+    api.get<Accommodation[]>(
+      `/accommodations/all/search?query=${encodeURIComponent(query)}`
+    ),
   create: (data: FormData) =>
-    api.post<Accommodation>('/accommodations', data, {
+    api.post<Accommodation>("/accommodations", data, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+};
+
+export const experiencesApi = {
+  getCategories: () => api.get<ExperienceCategory[]>("/experiences/categories"),
+  createCategory: (data: { name: string }) =>
+    api.post<ExperienceCategory>("/experiences/categories", data),
+  search: (query: string) =>
+    api.get<Experience[]>(
+      `/experiences/all/search?query=${encodeURIComponent(query)}`
+    ),
+  create: (data: FormData) =>
+    api.post<Experience>("/experiences", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
     }),
 };

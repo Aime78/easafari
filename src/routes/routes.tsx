@@ -7,7 +7,8 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import AccommodationsPage from "@/pages/accommodation/AccommodationsPage";
+import AccommodationsPage from "@/pages/accommodations/AccommodationsPage";
+import ExperiencesPage from "@/pages/experiences/ExperiencesPage";
 
 const router = createBrowserRouter([
   {
@@ -20,31 +21,38 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/attractions" replace />
+        element: <Navigate to="/attractions" replace />,
       },
       {
         path: "attractions",
-        element: <AttractionsPage />
+        element: <AttractionsPage />,
       },
       {
         path: "attractions/:categorySlug",
-        element: <AttractionsPage />
+        element: <AttractionsPage />,
       },
       {
         path: "accommodations",
-        element: <AccommodationsPage />
+        element: <AccommodationsPage />,
       },
       {
         path: "accommodations/:categorySlug",
-        element: <AccommodationsPage />
-      }
-    ]
+        element: <AccommodationsPage />,
+      },
+      {
+        path: "experiences",
+        element: <ExperiencesPage />,
+      },
+      {
+        path: "experiences/:categorySlug",
+        element: <ExperiencesPage />,
+      },
+    ],
   },
   {
     path: "login",
     element: <LoginPage />,
   },
-  
 ]);
 
 const Router = () => <RouterProvider router={router} />;

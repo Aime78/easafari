@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import logo from "@/assets/logo.png";
 import { useAttractionCategories } from "@/hooks/useAttractionCategories";
 import { useAccommodationCategories } from "@/hooks/useAccommodationCategories";
+import { useExperienceCategories } from "@/hooks/useExperienceCategories";
 import { categoryToSlug, getCategoryIcon } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,25 +23,42 @@ import { Button } from "@/components/ui/button";
 const Sidebar = () => {
   const location = useLocation();
   const [isAttractionsExpanded, setIsAttractionsExpanded] = useState(false);
-  const [isAccommodationsExpanded, setIsAccommodationsExpanded] = useState(false);
+  const [isAccommodationsExpanded, setIsAccommodationsExpanded] =
+    useState(false);
+  const [isExperiencesExpanded, setIsExperiencesExpanded] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showAccommodationAddForm, setShowAccommodationAddForm] = useState(false);
+  const [showAccommodationAddForm, setShowAccommodationAddForm] =
+    useState(false);
+  const [showExperienceAddForm, setShowExperienceAddForm] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [newAccommodationCategoryName, setNewAccommodationCategoryName] = useState("");
-  const { categories, loading, createCategory, isCreating } = useAttractionCategories();
-  const { 
-    categories: accommodationCategories, 
-    loading: accommodationLoading, 
-    createCategory: createAccommodationCategory, 
-    isCreating: isCreatingAccommodation 
+  const [newAccommodationCategoryName, setNewAccommodationCategoryName] =
+    useState("");
+  const [newExperienceCategoryName, setNewExperienceCategoryName] =
+    useState("");
+  const { categories, loading, createCategory, isCreating } =
+    useAttractionCategories();
+  const {
+    categories: accommodationCategories,
+    loading: accommodationLoading,
+    createCategory: createAccommodationCategory,
+    isCreating: isCreatingAccommodation,
   } = useAccommodationCategories();
+  const {
+    categories: experienceCategories,
+    loading: experienceLoading,
+    createCategory: createExperienceCategory,
+    isCreating: isCreatingExperience,
+  } = useExperienceCategories();
 
   useEffect(() => {
-    if (location.pathname.startsWith('/attractions/')) {
+    if (location.pathname.startsWith("/attractions/")) {
       setIsAttractionsExpanded(true);
     }
-    if (location.pathname.startsWith('/accommodations/')) {
+    if (location.pathname.startsWith("/accommodations/")) {
       setIsAccommodationsExpanded(true);
+    }
+    if (location.pathname.startsWith("/experiences/")) {
+      setIsExperiencesExpanded(true);
     }
   }, [location.pathname]);
 
@@ -52,7 +70,7 @@ const Sidebar = () => {
           onSuccess: () => {
             setNewCategoryName("");
             setShowAddForm(false);
-          }
+          },
         }
       );
     }
@@ -71,7 +89,7 @@ const Sidebar = () => {
           onSuccess: () => {
             setNewAccommodationCategoryName("");
             setShowAccommodationAddForm(false);
-          }
+          },
         }
       );
     }
@@ -80,6 +98,25 @@ const Sidebar = () => {
   const handleCancelAccommodationAdd = () => {
     setNewAccommodationCategoryName("");
     setShowAccommodationAddForm(false);
+  };
+
+  const handleAddExperienceCategory = () => {
+    if (newExperienceCategoryName.trim()) {
+      createExperienceCategory(
+        { name: newExperienceCategoryName.trim() },
+        {
+          onSuccess: () => {
+            setNewExperienceCategoryName("");
+            setShowExperienceAddForm(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleCancelExperienceAdd = () => {
+    setNewExperienceCategoryName("");
+    setShowExperienceAddForm(false);
   };
 
   const getLinkClassName = ({ isActive }: { isActive: boolean }) =>
@@ -105,16 +142,20 @@ const Sidebar = () => {
             <Home className="w-4 h-4" />
             <span>Overview</span>
           </NavLink>
-          
+
           <div>
             <NavLink
               to={"/accommodations"}
-              onClick={() => setIsAccommodationsExpanded(!isAccommodationsExpanded)}
+              onClick={() =>
+                setIsAccommodationsExpanded(!isAccommodationsExpanded)
+              }
               className={() => {
-                const baseClasses = "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
-                
-                const isExactlyOnAccommodations = location.pathname === '/accommodations';
-                
+                const baseClasses =
+                  "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
+
+                const isExactlyOnAccommodations =
+                  location.pathname === "/accommodations";
+
                 if (isExactlyOnAccommodations) {
                   return `${baseClasses} bg-primary text-white font-medium`;
                 } else if (isAccommodationsExpanded) {
@@ -144,11 +185,11 @@ const Sidebar = () => {
                     {accommodationCategories.map((category) => {
                       const IconComponent = getCategoryIcon(category.name);
                       const slug = categoryToSlug(category.name);
-                      
+
                       return (
-                        <NavLink 
+                        <NavLink
                           key={category.id}
-                          to={`/accommodations/${slug}`} 
+                          to={`/accommodations/${slug}`}
                           className={({ isActive }) =>
                             `px-4 py-2 rounded-lg flex items-center gap-2 ${
                               isActive
@@ -166,18 +207,22 @@ const Sidebar = () => {
                     {showAccommodationAddForm ? (
                       <div className="px-4 py-2 space-y-2">
                         <div className="flex flex-col gap-1">
-                          <label className="text-xs text-gray-600 font-medium">Name</label>
+                          <label className="text-xs text-gray-600 font-medium">
+                            Name
+                          </label>
                           <Input
                             type="text"
                             value={newAccommodationCategoryName}
-                            onChange={(e) => setNewAccommodationCategoryName(e.target.value)}
+                            onChange={(e) =>
+                              setNewAccommodationCategoryName(e.target.value)
+                            }
                             placeholder="Enter category name"
                             className="h-7 text-xs"
                             disabled={isCreatingAccommodation}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
+                              if (e.key === "Enter") {
                                 handleAddAccommodationCategory();
-                              } else if (e.key === 'Escape') {
+                              } else if (e.key === "Escape") {
                                 handleCancelAccommodationAdd();
                               }
                             }}
@@ -187,7 +232,10 @@ const Sidebar = () => {
                           <Button
                             size="sm"
                             onClick={handleAddAccommodationCategory}
-                            disabled={isCreatingAccommodation || !newAccommodationCategoryName.trim()}
+                            disabled={
+                              isCreatingAccommodation ||
+                              !newAccommodationCategoryName.trim()
+                            }
                             className="h-6 px-2 text-xs"
                           >
                             {isCreatingAccommodation ? (
@@ -230,10 +278,12 @@ const Sidebar = () => {
               to={"/attractions"}
               onClick={() => setIsAttractionsExpanded(!isAttractionsExpanded)}
               className={() => {
-                const baseClasses = "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
-                
-                const isExactlyOnAttractions = location.pathname === '/attractions';
-                
+                const baseClasses =
+                  "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
+
+                const isExactlyOnAttractions =
+                  location.pathname === "/attractions";
+
                 if (isExactlyOnAttractions) {
                   return `${baseClasses} bg-primary text-white font-medium`;
                 } else if (isAttractionsExpanded) {
@@ -263,11 +313,11 @@ const Sidebar = () => {
                     {categories.map((category) => {
                       const IconComponent = getCategoryIcon(category.name);
                       const slug = categoryToSlug(category.name);
-                      
+
                       return (
-                        <NavLink 
+                        <NavLink
                           key={category.id}
-                          to={`/attractions/${slug}`} 
+                          to={`/attractions/${slug}`}
                           className={({ isActive }) =>
                             `px-4 py-2 rounded-lg flex items-center gap-2 ${
                               isActive
@@ -285,7 +335,9 @@ const Sidebar = () => {
                     {showAddForm ? (
                       <div className="px-4 py-2 space-y-2">
                         <div className="flex flex-col gap-1">
-                          <label className="text-xs text-gray-600 font-medium">Name</label>
+                          <label className="text-xs text-gray-600 font-medium">
+                            Name
+                          </label>
                           <Input
                             type="text"
                             value={newCategoryName}
@@ -294,9 +346,9 @@ const Sidebar = () => {
                             className="h-7 text-xs"
                             disabled={isCreating}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
+                              if (e.key === "Enter") {
                                 handleAddCategory();
-                              } else if (e.key === 'Escape') {
+                              } else if (e.key === "Escape") {
                                 handleCancelAdd();
                               }
                             }}
@@ -343,17 +395,140 @@ const Sidebar = () => {
               </div>
             )}
           </div>
-          
-          <NavLink to={"/experiences"} className={getLinkClassName}>
-            <Camera className="w-4 h-4" />
-            Experiences
-          </NavLink>
-          
+
+          <div>
+            <NavLink
+              to={"/experiences"}
+              onClick={() => setIsExperiencesExpanded(!isExperiencesExpanded)}
+              className={() => {
+                const baseClasses =
+                  "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
+
+                const isExactlyOnExperiences =
+                  location.pathname === "/experiences";
+
+                if (isExactlyOnExperiences) {
+                  return `${baseClasses} bg-primary text-white font-medium`;
+                } else if (isExperiencesExpanded) {
+                  return `${baseClasses} bg-primary/10 text-primary font-medium`;
+                } else {
+                  return `${baseClasses} text-black font-normal hover:bg-primary hover:text-white hover:font-medium`;
+                }
+              }}
+            >
+              <Camera className="w-4 h-4" />
+              <span className="flex-1">Experiences</span>
+              {isExperiencesExpanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </NavLink>
+
+            {isExperiencesExpanded && (
+              <div className="ml-6 mt-1 space-y-1">
+                {experienceLoading ? (
+                  <div className="px-4 py-2 text-gray-500 text-sm">
+                    Loading categories...
+                  </div>
+                ) : (
+                  <>
+                    {experienceCategories.map((category) => {
+                      const IconComponent = getCategoryIcon(category.name);
+                      const slug = categoryToSlug(category.name);
+
+                      return (
+                        <NavLink
+                          key={category.id}
+                          to={`/experiences/${slug}`}
+                          className={({ isActive }) =>
+                            `px-4 py-2 rounded-lg flex items-center gap-2 ${
+                              isActive
+                                ? "bg-primary text-white font-medium"
+                                : "text-gray-600 font-normal hover:bg-primary hover:text-white hover:font-medium"
+                            }`
+                          }
+                        >
+                          <IconComponent className="w-4 h-4" />
+                          <span>{category.name}</span>
+                        </NavLink>
+                      );
+                    })}
+
+                    {showExperienceAddForm ? (
+                      <div className="px-4 py-2 space-y-2">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs text-gray-600 font-medium">
+                            Name
+                          </label>
+                          <Input
+                            type="text"
+                            value={newExperienceCategoryName}
+                            onChange={(e) =>
+                              setNewExperienceCategoryName(e.target.value)
+                            }
+                            placeholder="Enter category name"
+                            className="h-7 text-xs"
+                            disabled={isCreatingExperience}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleAddExperienceCategory();
+                              } else if (e.key === "Escape") {
+                                handleCancelExperienceAdd();
+                              }
+                            }}
+                          />
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            onClick={handleAddExperienceCategory}
+                            disabled={
+                              isCreatingExperience ||
+                              !newExperienceCategoryName.trim()
+                            }
+                            className="h-6 px-2 text-xs"
+                          >
+                            {isCreatingExperience ? (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b border-white"></div>
+                            ) : (
+                              <>
+                                <Save className="w-3 h-3 mr-1" />
+                                Save
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleCancelExperienceAdd}
+                            disabled={isCreatingExperience}
+                            className="h-6 px-2 text-xs"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowExperienceAddForm(true)}
+                        className="px-4 py-2 rounded-lg flex items-center gap-2 text-gray-600 font-normal hover:bg-primary hover:text-white hover:font-medium w-full text-left"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Category</span>
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
           <NavLink to={"/tour-providers"} className={getLinkClassName}>
             <Car className="w-4 h-4" />
             Tour Providers
           </NavLink>
-          
+
           <NavLink to={"/events"} className={getLinkClassName}>
             <Calendar className="w-4 h-4" />
             Events
