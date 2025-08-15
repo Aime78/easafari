@@ -43,8 +43,6 @@ import { AddAccommodationDialog } from "./AddAccommodationDialog";
 import type { Accommodation, AccommodationCategory } from "@/types/accommodations.type";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
-// types now imported from central types file
-
 interface AccommodationTableProps {
   accommodations: Accommodation[];
   selectedCategory: AccommodationCategory | null;

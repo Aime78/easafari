@@ -19,3 +19,26 @@ export interface User {
   name?: string;
   role?: string;
 }
+
+export interface ApiError {
+  response?: {
+    status: number;
+    statusText: string;
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+  code?: string;
+}
+
+export interface ApiErrorResponse extends Error {
+  response?: {
+    status: number;
+    statusText: string;
+    data?: {
+      message?: string;
+    };
+  };
+  code?: string;
+}

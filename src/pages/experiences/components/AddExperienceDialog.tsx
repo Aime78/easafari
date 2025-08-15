@@ -27,7 +27,6 @@ export const AddExperienceDialog = ({ children }: AddExperienceDialogProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement experience creation
     console.log("Creating experience:", formData);
     setOpen(false);
     setFormData({

@@ -1,13 +1,22 @@
 import { object, string } from "zod";
 
 export const signInSchema = object({
-  email: string()
-    .min(1, "Email is required")
-    .email("Invalid email"),
+  email: string().min(1, "Email is required").email("Invalid email"),
   password: string()
     .min(1, "Password is required")
     .min(8, "Password must be more than 8 characters")
     .max(32, "Password must be less than 32 characters"),
+});
+
+export const registerSchema = object({
+  email: string().min(1, "Company email is required").email("Invalid email"),
+  password: string()
+    .min(1, "Password is required")
+    .min(8, "Password must be more than 8 characters")
+    .max(32, "Password must be less than 32 characters"),
+  companyName: string()
+    .min(1, "Company name is required")
+    .max(255, "Company name must be less than 255 characters"),
 });
 
 export const addAttractionSchema = object({
@@ -38,8 +47,7 @@ export const addAttractionSchema = object({
       const num = parseFloat(val);
       return !isNaN(num) && num >= 0 && num <= 5;
     }, "Rating must be a valid number between 0 and 5"),
-  attraction_category_id: string()
-    .min(1, "Category is required"),
+  attraction_category_id: string().min(1, "Category is required"),
 });
 
 export const addAccommodationSchema = object({
@@ -54,9 +62,11 @@ export const addAccommodationSchema = object({
     .max(500, "Address must be less than 500 characters"),
   price: string()
     .min(1, "Price is required")
-    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, "Price must be a positive number"),
-  amenities: string()
-    .min(1, "Amenities are required"),
+    .refine(
+      (val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0,
+      "Price must be a positive number"
+    ),
+  amenities: string().min(1, "Amenities are required"),
   latitude: string()
     .min(1, "Latitude is required")
     .refine((val) => {
@@ -75,6 +85,5 @@ export const addAccommodationSchema = object({
       const num = parseFloat(val);
       return !isNaN(num) && num >= 0 && num <= 5;
     }, "Rating must be a valid number between 0 and 5"),
-  accommodation_category_id: string()
-    .min(1, "Category is required"),
+  accommodation_category_id: string().min(1, "Category is required"),
 });

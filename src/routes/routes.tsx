@@ -1,6 +1,7 @@
 import AppLayout from "@/layout/AppLayout";
 import AttractionsPage from "@/pages/attractions/AttractionsPage";
 import LoginPage from "@/pages/login/LoginPage";
+import RegisterPage from "@/pages/register/RegisterPage";
 import ProtectedRoute from "@/components/custom/ProtectedRoute";
 import {
   createBrowserRouter,
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
   {
     path: "login",
     element: <LoginPage />,
+  },
+  {
+    path: "register",
+    element: <RegisterPage />,
   },
 ]);
 

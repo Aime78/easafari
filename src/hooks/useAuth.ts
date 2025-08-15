@@ -2,12 +2,12 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/lib/api';
 import { useAuthContext } from '@/contexts/AuthContext';
-import type { LoginCredentials, LoginResponse } from '@/types/auth.type';
+import type { LoginCredentials, LoginResponse, ApiErrorResponse } from '@/types/auth.type';
 
 export const useLogin = () => {
   const { login } = useAuthContext();
 
-  return useMutation<LoginResponse, Error, LoginCredentials>({
+  return useMutation<LoginResponse, ApiErrorResponse, LoginCredentials>({
     mutationFn: authApi.login,
     onSuccess: (data) => {
       login(data.token, data.data);

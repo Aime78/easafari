@@ -25,6 +25,7 @@ import logo from "@/assets/logo.png";
 import { signInSchema } from "@/lib/schemaValidation";
 import { useLogin, useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
+import type { ApiErrorResponse } from "@/types/auth.type";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -64,7 +65,7 @@ const LoginPage = () => {
         const from = location.state?.from?.pathname || '/attractions';
         navigate(from, { replace: true });
       },
-      onError: (error: any) => {
+      onError: (error: ApiErrorResponse) => {
         console.error('Login error:', error);
 
         if (error?.response?.status === 401 || error?.response?.status === 400) {
