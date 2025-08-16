@@ -1,50 +1,31 @@
-import { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { attractionsApi } from '@/lib/api';
-import type { AttractionCategory } from '@/types/attractions.type';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { attractionsApi } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 export const useAttractionCategories = () => {
-  const [categories, setCategories] = useState<AttractionCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await attractionsApi.getCategories();
-        setCategories(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch categories');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  const {
+    data: categories = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.categories.attractions.lists(),
+    queryFn: attractionsApi.getCategories,
+  });
 
   const createCategoryMutation = useMutation({
     mutationFn: attractionsApi.createCategory,
-    onSuccess: (newCategory) => {
-      setCategories(prev => [...prev, newCategory]);
-      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.categories.attractions.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.attractions.lists(),
+      });
     },
-    onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to create category');
-    }
   });
-
-  const refetch = () => {
-    setLoading(true);
-    setError(null);
-    attractionsApi.getCategories()
-      .then(setCategories)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to fetch categories'))
-      .finally(() => setLoading(false));
-  };
 
   return {
     categories,

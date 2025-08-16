@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { attractionsApi } from "@/lib/api";
+import { accommodationsApi } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 
-export const useAttractionsSearch = (query: string, delay: number = 500) => {
+export const useAccommodationSearch = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setDebouncedQuery(query.trim());
-    }, delay);
+      setDebouncedQuery(searchQuery.trim());
+    }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [query, delay]);
+  }, [searchQuery]);
 
   const {
     data: searchResults = [],
@@ -20,16 +21,28 @@ export const useAttractionsSearch = (query: string, delay: number = 500) => {
     error: searchError,
     isFetching,
   } = useQuery({
-    queryKey: queryKeys.attractions.search(debouncedQuery),
-    queryFn: () => attractionsApi.search(debouncedQuery),
+    queryKey: queryKeys.accommodations.search(debouncedQuery),
+    queryFn: () => accommodationsApi.search(debouncedQuery),
     enabled: debouncedQuery.length > 0,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  const updateSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setDebouncedQuery("");
+  };
+
   return {
+    searchQuery,
     searchResults,
     isSearching: isSearching || isFetching,
     searchError,
+    updateSearch,
+    clearSearch,
     hasSearchQuery: debouncedQuery.length > 0,
   };
 };

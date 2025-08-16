@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { attractionsApi } from '@/lib/api';
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { attractionsApi } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 export const useAttractionSearch = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -18,9 +19,9 @@ export const useAttractionSearch = () => {
     data: searchResults = [],
     isLoading: isSearching,
     error: searchError,
-    isFetching
+    isFetching,
   } = useQuery({
-    queryKey: ['attractions', 'search', debouncedQuery],
+    queryKey: queryKeys.attractions.search(debouncedQuery),
     queryFn: () => attractionsApi.search(debouncedQuery),
     enabled: debouncedQuery.length > 0,
     staleTime: 5 * 60 * 1000,
@@ -31,8 +32,8 @@ export const useAttractionSearch = () => {
   };
 
   const clearSearch = () => {
-    setSearchQuery('');
-    setDebouncedQuery('');
+    setSearchQuery("");
+    setDebouncedQuery("");
   };
 
   return {

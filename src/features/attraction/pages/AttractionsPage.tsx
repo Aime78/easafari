@@ -1,20 +1,25 @@
 import { useParams } from "react-router-dom";
-import AttractionTable from "./components/AttractionTable";
-import { useAttractions } from "@/hooks/useAttractions";
-import { useAttractionCategories } from "@/hooks/useAttractionCategories";
+import AttractionTable from "../components/AttractionTable";
+import {
+  useAttractions,
+  useAttractionCategories,
+} from "../hooks/useAttraction";
 import { categoryToSlug } from "@/lib/utils";
 
 const AttractionsPage = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
   const { categories } = useAttractionCategories();
 
-  const selectedCategory = categorySlug 
-    ? categories.find(cat => categoryToSlug(cat.name) === categorySlug) || null
+  const selectedCategory = categorySlug
+    ? categories.find((cat) => categoryToSlug(cat.name) === categorySlug) ||
+      null
     : null;
 
-  const { data: attractionsData = [], isLoading, error } = useAttractions(
-    selectedCategory?.id
-  );
+  const {
+    data: attractionsData = [],
+    isLoading,
+    error,
+  } = useAttractions(selectedCategory?.id);
 
   if (isLoading) {
     return (
@@ -31,7 +36,9 @@ const AttractionsPage = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Error loading attractions: {error.message}</p>
+          <p className="text-red-600 mb-4">
+            Error loading attractions: {error.message}
+          </p>
           <p className="text-gray-600 text-sm">Using sample data for now.</p>
         </div>
       </div>
@@ -40,12 +47,12 @@ const AttractionsPage = () => {
 
   return (
     <div>
-      <AttractionTable 
-        attractions={attractionsData} 
+      <AttractionTable
+        attractions={attractionsData}
         selectedCategory={selectedCategory}
       />
     </div>
   );
 };
 
-export default AttractionsPage
+export default AttractionsPage;

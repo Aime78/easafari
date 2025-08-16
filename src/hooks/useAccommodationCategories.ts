@@ -1,49 +1,31 @@
-import { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { accommodationsApi } from '@/lib/api';
-import type { AccommodationCategory } from '@/types/accommodations.type';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { accommodationsApi } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
 
 export const useAccommodationCategories = () => {
-  const [categories, setCategories] = useState<AccommodationCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await accommodationsApi.getCategories();
-        setCategories(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch categories');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
-  }, []);
+  const {
+    data: categories = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.categories.accommodations.lists(),
+    queryFn: accommodationsApi.getCategories,
+  });
 
   const createCategoryMutation = useMutation({
     mutationFn: accommodationsApi.createCategory,
-    onSuccess: (newCategory) => {
-      setCategories(prev => [...prev, newCategory]);
-      queryClient.invalidateQueries({ queryKey: ['accommodations'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.categories.accommodations.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.accommodations.lists(),
+      });
     },
-    onError: (err) => {
-      setError(err instanceof Error ? err.message : 'Failed to create category');
-    }
   });
-
-  const refetch = () => {
-    setLoading(true);
-    setError(null);
-    accommodationsApi.getCategories()
-      .then(setCategories)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to fetch categories'))
-      .finally(() => setLoading(false));
-  };
 
   return {
     categories,

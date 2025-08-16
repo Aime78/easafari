@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useLogout, useAuth } from "@/hooks/useAuth";
+import { useLogout, useAuth } from "@/features/auth";
 import Sidebar from "./Sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -21,16 +21,16 @@ const AppLayout = () => {
   const getUserInitials = (name?: string, email?: string) => {
     if (name) {
       return name
-        .split(' ')
-        .map(word => word.charAt(0))
-        .join('')
+        .split(" ")
+        .map((word) => word.charAt(0))
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     }
     if (email) {
       return email.charAt(0).toUpperCase();
     }
-    return 'U';
+    return "U";
   };
 
   return (
@@ -46,10 +46,7 @@ const AppLayout = () => {
                   className="relative h-8 w-8 rounded-full cursor-pointer hover:bg-gray-100"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src=""
-                      alt={user?.name || user?.email}
-                    />
+                    <AvatarImage src="" alt={user?.name || user?.email} />
                     <AvatarFallback className="bg-gray-200">
                       {getUserInitials(user?.name, user?.email)}
                     </AvatarFallback>
@@ -64,11 +61,9 @@ const AppLayout = () => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium text-gray-900">
-                      {user?.name || 'User'}
+                      {user?.name || "User"}
                     </p>
-                    <p className="text-xs text-gray-600">
-                      {user?.email}
-                    </p>
+                    <p className="text-xs text-gray-600">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-gray-200" />

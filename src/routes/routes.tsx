@@ -1,23 +1,25 @@
-import AppLayout from "@/layout/AppLayout";
-import AttractionsPage from "@/pages/attractions/AttractionsPage";
-import LoginPage from "@/pages/login/LoginPage";
-import RegisterPage from "@/pages/register/RegisterPage";
-import ProtectedRoute from "@/components/custom/ProtectedRoute";
 import {
   createBrowserRouter,
   RouterProvider,
   Navigate,
 } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import AppLayout from "@/layout/AppLayout";
+import RegisterPage from "@/pages/register/RegisterPage";
+// import ProtectedRoute from "@/components/custom/ProtectedRoute";
 import AccommodationsPage from "@/pages/accommodations/AccommodationsPage";
 import ExperiencesPage from "@/pages/experiences/ExperiencesPage";
+
+const LoginPage = lazy(() => import("@/features/auth").then(module => ({ default: module.LoginPage })));
+const AttractionsPage = lazy(() => import("@/features/attraction").then(module => ({ default: module.AttractionsPage })));
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <ProtectedRoute>
         <AppLayout />
-      </ProtectedRoute>
+      // <ProtectedRoute>
+      // </ProtectedRoute>
     ),
     children: [
       {
@@ -52,7 +54,11 @@ const router = createBrowserRouter([
   },
   {
     path: "login",
-    element: <LoginPage />,
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <LoginPage />
+      </Suspense>
+    ),
   },
   {
     path: "register",
