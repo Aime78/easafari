@@ -1,12 +1,6 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import type { LoginResponse } from "@/types/auth.type";
-import type { AttractionCategory, Attraction } from "@/types/attractions.type";
-import type {
-  Accommodation,
-  AccommodationCategory,
-} from "@/types/accommodations.type";
-import type { Experience, ExperienceCategory } from "@/types/experiences.type";
+
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -111,58 +105,4 @@ export const api = {
 
   delete: <T>(endpoint: string, options?: AxiosRequestConfig) =>
     apiRequest<T>(endpoint, { method: "DELETE", ...options }),
-};
-
-export const authApi = {
-  login: (credentials: { email: string; password: string }) =>
-    api.post<LoginResponse>("/auth/login", credentials),
-};
-
-export const attractionsApi = {
-  getCategories: () => api.get<AttractionCategory[]>("/attractions/categories"),
-  createCategory: (data: { name: string }) =>
-    api.post<AttractionCategory>("/attractions/categories", data),
-  search: (query: string) =>
-    api.get<Attraction[]>(
-      `/attractions/all/search?query=${encodeURIComponent(query)}`
-    ),
-  create: (data: FormData) =>
-    api.post<Attraction>("/attractions", data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }),
-};
-
-export const accommodationsApi = {
-  getCategories: () =>
-    api.get<AccommodationCategory[]>("/accommodations/categories"),
-  createCategory: (data: { name: string }) =>
-    api.post<AccommodationCategory>("/accommodations/categories", data),
-  search: (query: string) =>
-    api.get<Accommodation[]>(
-      `/accommodations/all/search?query=${encodeURIComponent(query)}`
-    ),
-  create: (data: FormData) =>
-    api.post<Accommodation>("/accommodations", data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }),
-};
-
-export const experiencesApi = {
-  getCategories: () => api.get<ExperienceCategory[]>("/experiences/categories"),
-  createCategory: (data: { name: string }) =>
-    api.post<ExperienceCategory>("/experiences/categories", data),
-  search: (query: string) =>
-    api.get<Experience[]>(
-      `/experiences/all/search?query=${encodeURIComponent(query)}`
-    ),
-  create: (data: FormData) =>
-    api.post<Experience>("/experiences", data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }),
 };

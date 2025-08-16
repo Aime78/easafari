@@ -1,22 +1,38 @@
-import AppLayout from "@/layout/AppLayout";
-import AttractionsPage from "@/pages/attractions/AttractionsPage";
-import LoginPage from "@/pages/login/LoginPage";
-import ProtectedRoute from "@/components/custom/ProtectedRoute";
 import {
   createBrowserRouter,
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import AccommodationsPage from "@/pages/accommodations/AccommodationsPage";
-import ExperiencesPage from "@/pages/experiences/ExperiencesPage";
+import { lazy, Suspense } from "react";
+import AppLayout from "@/layout/AppLayout";
+
+const LoginPage = lazy(() =>
+  import("@/features/auth").then((module) => ({ default: module.LoginPage }))
+);
+const RegisterPage = lazy(() =>
+  import("@/features/auth").then((module) => ({ default: module.RegisterPage }))
+);
+const AttractionsPage = lazy(() =>
+  import("@/features/attraction").then((module) => ({
+    default: module.AttractionsPage,
+  }))
+);
+const AccommodationsPage = lazy(() =>
+  import("@/features/accommodation").then((module) => ({
+    default: module.AccommodationsPage,
+  }))
+);
+const ExperiencesPage = lazy(() =>
+  import("@/features/experience").then((module) => ({
+    default: module.ExperiencesPage,
+  }))
+);
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <ProtectedRoute>
-        <AppLayout />
-      </ProtectedRoute>
+      <AppLayout />
     ),
     children: [
       {
@@ -25,19 +41,35 @@ const router = createBrowserRouter([
       },
       {
         path: "attractions",
-        element: <AttractionsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AttractionsPage />
+          </Suspense>
+        ),
       },
       {
         path: "attractions/:categorySlug",
-        element: <AttractionsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AttractionsPage />
+          </Suspense>
+        ),
       },
       {
         path: "accommodations",
-        element: <AccommodationsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AccommodationsPage />
+          </Suspense>
+        ),
       },
       {
         path: "accommodations/:categorySlug",
-        element: <AccommodationsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AccommodationsPage />
+          </Suspense>
+        ),
       },
       {
         path: "experiences",
@@ -51,7 +83,15 @@ const router = createBrowserRouter([
   },
   {
     path: "login",
-    element: <LoginPage />,
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <LoginPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "register",
+    element: <RegisterPage />,
   },
 ]);
 
