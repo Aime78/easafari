@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import type z from "zod";
+import { registerSchema } from "../schemas/authSchemas";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+import logo from "@/assets/logo.png";
 import {
   Card,
   CardContent,
@@ -14,15 +19,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { EyeIcon, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import logo from "@/assets/logo.png";
-import { registerSchema } from "@/lib/schemaValidation";
+import { EyeIcon, EyeOff, Loader2 } from "lucide-react";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);

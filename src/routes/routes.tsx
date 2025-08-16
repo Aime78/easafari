@@ -5,12 +5,12 @@ import {
 } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import AppLayout from "@/layout/AppLayout";
-import RegisterPage from "@/pages/register/RegisterPage";
-// import ProtectedRoute from "@/components/custom/ProtectedRoute";
-import ExperiencesPage from "@/pages/experiences/ExperiencesPage";
 
 const LoginPage = lazy(() =>
   import("@/features/auth").then((module) => ({ default: module.LoginPage }))
+);
+const RegisterPage = lazy(() =>
+  import("@/features/auth").then((module) => ({ default: module.RegisterPage }))
 );
 const AttractionsPage = lazy(() =>
   import("@/features/attraction").then((module) => ({
@@ -22,14 +22,17 @@ const AccommodationsPage = lazy(() =>
     default: module.AccommodationsPage,
   }))
 );
+const ExperiencesPage = lazy(() =>
+  import("@/features/experience").then((module) => ({
+    default: module.ExperiencesPage,
+  }))
+);
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <AppLayout />
-      // <ProtectedRoute>
-      // </ProtectedRoute>
     ),
     children: [
       {

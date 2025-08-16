@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
-import type { Experience, ExperienceCategory } from "@/types/experiences.type";
+import type { Experience, ExperienceCategory } from "../types/experienceTypes";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { AddExperienceDialog } from "./AddExperienceDialog";
 

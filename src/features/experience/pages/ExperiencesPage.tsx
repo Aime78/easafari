@@ -1,7 +1,9 @@
 import { useParams } from "react-router-dom";
-import ExperienceTable from "./components/ExperienceTable";
-import { useExperiences } from "@/hooks/useExperiences";
-import { useExperienceCategories } from "@/hooks/useExperienceCategories";
+import ExperienceTable from "../components/ExperienceTable";
+import {
+  useExperiences,
+  useExperienceCategories,
+} from "../hooks/useExperience";
 import { categoryToSlug } from "@/lib/utils";
 
 const ExperiencesPage = () => {

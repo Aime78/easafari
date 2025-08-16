@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import logo from "@/assets/logo.png";
 import { useAttractionCategories } from "@/features/attraction";
 import { useAccommodationCategories } from "@/features/accommodation";
-import { useExperienceCategories } from "@/hooks/useExperienceCategories";
+import { useExperienceCategories } from "@/features/experience";
 import { categoryToSlug, getCategoryIcon } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
