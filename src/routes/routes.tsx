@@ -7,17 +7,27 @@ import { lazy, Suspense } from "react";
 import AppLayout from "@/layout/AppLayout";
 import RegisterPage from "@/pages/register/RegisterPage";
 // import ProtectedRoute from "@/components/custom/ProtectedRoute";
-import AccommodationsPage from "@/pages/accommodations/AccommodationsPage";
 import ExperiencesPage from "@/pages/experiences/ExperiencesPage";
 
-const LoginPage = lazy(() => import("@/features/auth").then(module => ({ default: module.LoginPage })));
-const AttractionsPage = lazy(() => import("@/features/attraction").then(module => ({ default: module.AttractionsPage })));
+const LoginPage = lazy(() =>
+  import("@/features/auth").then((module) => ({ default: module.LoginPage }))
+);
+const AttractionsPage = lazy(() =>
+  import("@/features/attraction").then((module) => ({
+    default: module.AttractionsPage,
+  }))
+);
+const AccommodationsPage = lazy(() =>
+  import("@/features/accommodation").then((module) => ({
+    default: module.AccommodationsPage,
+  }))
+);
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
-        <AppLayout />
+      <AppLayout />
       // <ProtectedRoute>
       // </ProtectedRoute>
     ),
@@ -28,19 +38,35 @@ const router = createBrowserRouter([
       },
       {
         path: "attractions",
-        element: <AttractionsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AttractionsPage />
+          </Suspense>
+        ),
       },
       {
         path: "attractions/:categorySlug",
-        element: <AttractionsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AttractionsPage />
+          </Suspense>
+        ),
       },
       {
         path: "accommodations",
-        element: <AccommodationsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AccommodationsPage />
+          </Suspense>
+        ),
       },
       {
         path: "accommodations/:categorySlug",
-        element: <AccommodationsPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AccommodationsPage />
+          </Suspense>
+        ),
       },
       {
         path: "experiences",

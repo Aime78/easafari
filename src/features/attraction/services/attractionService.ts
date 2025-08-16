@@ -19,7 +19,4 @@ export const attractionService = {
         "Content-Type": "multipart/form-data",
       },
     }),
-  update: (id: string, data: Partial<Attraction>): Promise<Attraction> =>
-    api.put(`/attractions/${id}`, data),
-  delete: (id: string): Promise<void> => api.delete(`/attractions/${id}`),
 };
