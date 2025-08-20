@@ -13,9 +13,9 @@ import {
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import logo from "@/assets/logo.png";
-import { useAttractionCategories } from "@/features/attraction";
-import { useAccommodationCategories } from "@/features/accommodation";
-import { useExperienceCategories } from "@/features/experience";
+import { useAttractionCategories } from "@/features/admin/attraction";
+import { useAccommodationCategories } from "@/features/admin/accommodation";
+import { useExperienceCategories } from "@/features/admin/experience";
 import { categoryToSlug, getCategoryIcon } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

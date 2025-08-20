@@ -16,17 +16,17 @@ const RegisterPage = lazy(() =>
 );
 
 const AdminAttractionsPage = lazy(() =>
-  import("@/features/attraction").then((module) => ({
+  import("@/features/admin/attraction").then((module) => ({
     default: module.AttractionsPage,
   }))
 );
 const AdminAccommodationsPage = lazy(() =>
-  import("@/features/accommodation").then((module) => ({
+  import("@/features/admin/accommodation").then((module) => ({
     default: module.AccommodationsPage,
   }))
 );
 const AdminExperiencesPage = lazy(() =>
-  import("@/features/experience").then((module) => ({
+  import("@/features/admin/experience").then((module) => ({
     default: module.ExperiencesPage,
   }))
 );
@@ -34,22 +34,22 @@ const AdminExperiencesPage = lazy(() =>
 // Provider Pages - For now, using the same components as admin
 // These will be replaced with provider-specific components later
 const ProviderDashboardPage = lazy(() =>
-  import("@/features/attraction").then((module) => ({
+  import("@/features/admin/attraction").then((module) => ({
     default: module.AttractionsPage, // Temporary - replace with actual dashboard
   }))
 );
 const ProviderAttractionsPage = lazy(() =>
-  import("@/features/attraction").then((module) => ({
+  import("@/features/admin/attraction").then((module) => ({
     default: module.AttractionsPage,
   }))
 );
 const ProviderAccommodationsPage = lazy(() =>
-  import("@/features/accommodation").then((module) => ({
+  import("@/features/admin/accommodation").then((module) => ({
     default: module.AccommodationsPage,
   }))
 );
 const ProviderExperiencesPage = lazy(() =>
-  import("@/features/experience").then((module) => ({
+  import("@/features/admin/experience").then((module) => ({
     default: module.ExperiencesPage,
   }))
 );
@@ -140,9 +140,9 @@ const router = createBrowserRouter([
   {
     path: "/provider",
     element: (
-      <ProtectedRoute allowedRoles={["service_provider"]}>
-        <ProviderLayout />
-      </ProtectedRoute>
+      <ProviderLayout />
+      // <ProtectedRoute allowedRoles={["service_provider"]}>
+      // </ProtectedRoute>
     ),
     children: [
       {
