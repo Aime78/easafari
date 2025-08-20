@@ -237,7 +237,7 @@ const AccommodationTable = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentAccommodations.map((acc) => (
+                {currentAccommodations?.map((acc) => (
                   <TableRow key={acc.id}>
                     <TableCell>
                       {acc.thumbnail ? (
