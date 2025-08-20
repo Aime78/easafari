@@ -5,6 +5,7 @@ import {
   useAttractionCategories,
 } from "../hooks/useAttraction";
 import { categoryToSlug } from "@/lib/utils";
+import type { Attraction } from "../types/attractionTypes";
 
 const AttractionsPage = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
@@ -16,10 +17,25 @@ const AttractionsPage = () => {
     : null;
 
   const {
-    data: attractionsData = [],
+    data: attractionsData,
     isLoading,
     error,
   } = useAttractions(selectedCategory?.id);
+
+  // Ensure we have a valid array of attractions
+  let attractions: Attraction[] = [];
+
+  if (attractionsData) {
+    if (Array.isArray(attractionsData)) {
+      attractions = attractionsData;
+    } else {
+      // Handle wrapped response structure
+      const dataObj = attractionsData as unknown as { data?: Attraction[] };
+      if (dataObj.data && Array.isArray(dataObj.data)) {
+        attractions = dataObj.data;
+      }
+    }
+  }
 
   if (isLoading) {
     return (
@@ -48,7 +64,7 @@ const AttractionsPage = () => {
   return (
     <div>
       <AttractionTable
-        attractions={attractionsData}
+        attractions={attractions}
         selectedCategory={selectedCategory}
       />
     </div>

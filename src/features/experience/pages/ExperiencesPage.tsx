@@ -5,6 +5,7 @@ import {
   useExperienceCategories,
 } from "../hooks/useExperience";
 import { categoryToSlug } from "@/lib/utils";
+import type { Experience } from "../types/experienceTypes";
 
 const ExperiencesPage = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
@@ -16,10 +17,25 @@ const ExperiencesPage = () => {
     : null;
 
   const {
-    data: experiencesData = [],
+    data: experiencesData,
     isLoading,
     error,
   } = useExperiences(selectedCategory?.id);
+
+  // Ensure we have a valid array of experiences
+  let experiences: Experience[] = [];
+
+  if (experiencesData) {
+    if (Array.isArray(experiencesData)) {
+      experiences = experiencesData;
+    } else {
+      // Handle wrapped response structure
+      const dataObj = experiencesData as unknown as { data?: Experience[] };
+      if (dataObj.data && Array.isArray(dataObj.data)) {
+        experiences = dataObj.data;
+      }
+    }
+  }
 
   if (isLoading) {
     return (
@@ -46,7 +62,7 @@ const ExperiencesPage = () => {
   return (
     <div>
       <ExperienceTable
-        experiences={experiencesData}
+        experiences={experiences}
         selectedCategory={selectedCategory}
       />
     </div>

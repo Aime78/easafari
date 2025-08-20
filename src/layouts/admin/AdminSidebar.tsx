@@ -20,7 +20,7 @@ import { categoryToSlug, getCategoryIcon } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const Sidebar = () => {
+const AdminSidebar = () => {
   const location = useLocation();
   const [isAttractionsExpanded, setIsAttractionsExpanded] = useState(false);
   const [isAccommodationsExpanded, setIsAccommodationsExpanded] =
@@ -49,6 +49,15 @@ const Sidebar = () => {
     createCategory: createExperienceCategory,
     isCreating: isCreatingExperience,
   } = useExperienceCategories();
+
+  // Ensure categories are arrays
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeAccommodationCategories = Array.isArray(accommodationCategories)
+    ? accommodationCategories
+    : [];
+  const safeExperienceCategories = Array.isArray(experienceCategories)
+    ? experienceCategories
+    : [];
 
   useEffect(() => {
     if (location.pathname.startsWith("/attractions/")) {
@@ -138,7 +147,7 @@ const Sidebar = () => {
 
       <div className="flex flex-col h-[calc(100vh-70px)] text-sm">
         <nav className="flex flex-1 flex-col gap-1 px-2 py-3">
-          <NavLink to={"/tax-declaration"} className={getLinkClassName}>
+          <NavLink to={"/"} className={getLinkClassName}>
             <Home className="w-4 h-4" />
             <span>Overview</span>
           </NavLink>
@@ -182,7 +191,7 @@ const Sidebar = () => {
                   </div>
                 ) : (
                   <>
-                    {accommodationCategories.map((category) => {
+                    {safeAccommodationCategories.map((category) => {
                       const IconComponent = getCategoryIcon(category.name);
                       const slug = categoryToSlug(category.name);
 
@@ -310,7 +319,7 @@ const Sidebar = () => {
                   </div>
                 ) : (
                   <>
-                    {categories.map((category) => {
+                    {safeCategories.map((category) => {
                       const IconComponent = getCategoryIcon(category.name);
                       const slug = categoryToSlug(category.name);
 
@@ -433,7 +442,7 @@ const Sidebar = () => {
                   </div>
                 ) : (
                   <>
-                    {experienceCategories.map((category) => {
+                    {safeExperienceCategories.map((category) => {
                       const IconComponent = getCategoryIcon(category.name);
                       const slug = categoryToSlug(category.name);
 
@@ -539,4 +548,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;
