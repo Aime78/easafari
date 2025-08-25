@@ -11,9 +11,9 @@ import ProtectedRoute from "@/components/custom/ProtectedRoute";
 const LoginPage = lazy(() =>
   import("@/features/auth").then((module) => ({ default: module.LoginPage }))
 );
-const RegisterPage = lazy(() =>
-  import("@/features/auth").then((module) => ({ default: module.RegisterPage }))
-);
+// const RegisterPage = lazy(() =>
+//   import("@/features/auth").then((module) => ({ default: module.RegisterPage }))
+// );
 
 const AdminAttractionsPage = lazy(() =>
   import("@/features/admin/attraction").then((module) => ({
@@ -33,6 +33,18 @@ const AdminExperiencesPage = lazy(() =>
 
 // Provider Pages - For now, using the same components as admin
 // These will be replaced with provider-specific components later
+const ProviderRegisterPage = lazy(() =>
+  import("@/features/provider/auth").then((module) => ({
+    default: module.ProviderRegisterPage,
+  }))
+);
+
+const ProviderLoginPage = lazy(() =>
+  import("@/features/provider/auth").then((module) => ({
+    default: module.ProviderLoginPage,
+  }))
+);
+
 const ProviderDashboardPage = lazy(() =>
   import("@/features/admin/attraction").then((module) => ({
     default: module.AttractionsPage, // Temporary - replace with actual dashboard
@@ -61,7 +73,7 @@ const ProviderSettingsPage = lazy(() =>
 
 const router = createBrowserRouter([
   {
-    path: "login",
+    path: "admin/login",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <LoginPage />
@@ -72,7 +84,15 @@ const router = createBrowserRouter([
     path: "register",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
-        <RegisterPage />
+        <ProviderRegisterPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "login",
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProviderLoginPage />
       </Suspense>
     ),
   },

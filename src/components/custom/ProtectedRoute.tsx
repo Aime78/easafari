@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { useAuthContext } from "@/contexts/useAuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -31,8 +31,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const userRole = user?.role || "admin"; // Default to admin for now
     if (!allowedRoles.includes(userRole)) {
       // Redirect based on user role
-      const redirectPath =
-        userRole === "service_provider" ? "/provider" : "/admin";
+      const redirectPath = userRole === "provider" ? "/provider" : "/admin";
       return <Navigate to={redirectPath} replace />;
     }
   }
