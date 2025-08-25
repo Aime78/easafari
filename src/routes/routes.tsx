@@ -53,6 +53,11 @@ const ProviderExperiencesPage = lazy(() =>
     default: module.ExperiencesPage,
   }))
 );
+const ProviderSettingsPage = lazy(() =>
+  import("@/features/provider").then((module) => ({
+    default: module.ProviderSettingsPage,
+  }))
+);
 
 const router = createBrowserRouter([
   {
@@ -205,6 +210,15 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: "settings",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProviderSettingsPage />
+          </Suspense>
+        ),
+      },
+      
     ],
   },
 
