@@ -19,8 +19,7 @@ const ProviderLoginPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || "/dashboard";
-      navigate(from, { replace: true });
+      navigate("/");
     }
   }, [isAuthenticated, navigate, location]);
 
