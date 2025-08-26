@@ -53,4 +53,13 @@ export const queryKeys = {
       lists: () => [...queryKeys.categories.experiences.all, "list"] as const,
     },
   },
+
+  // Provider
+  provider: {
+    all: ["provider"] as const,
+    profile: () => [...queryKeys.provider.all, "profile"] as const,
+    services: () => [...queryKeys.provider.all, "services"] as const,
+    details: () => [...queryKeys.provider.all, "detail"] as const,
+    detail: (id: string) => [...queryKeys.provider.details(), id] as const,
+  },
 };
