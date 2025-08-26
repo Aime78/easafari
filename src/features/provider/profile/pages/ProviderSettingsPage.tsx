@@ -34,10 +34,8 @@ const ProviderSettingsPage = () => {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
-  // Auth context
   const { user } = useAuthContext();
 
-  // Backend integration
   const { data: profileData, isLoading: isLoadingProfile } =
     useProviderProfile();
   const updateProfileMutation = useUpdateProviderProfile();
@@ -56,7 +54,6 @@ const ProviderSettingsPage = () => {
     },
   });
 
-  // Load existing profile data into form
   useEffect(() => {
     if (profileData) {
       form.reset({
@@ -65,13 +62,11 @@ const ProviderSettingsPage = () => {
         address: profileData.address || "",
         phone: profileData.phone || "",
         mobile: profileData.mobile || "",
-        // Handle services - convert from old format to new format if needed
         services: Array.isArray(profileData.services)
           ? profileData.services.map((s) => s.id)
-          : [], // Start with empty array if services is not array
+          : [],
       });
 
-      // Set thumbnail preview if exists
       if (profileData.thumbnail) {
         setThumbnailPreview(
           `${import.meta.env.VITE_API_BASE_URL}/profileData.thumbnail`
@@ -92,21 +87,16 @@ const ProviderSettingsPage = () => {
 
   const onSubmit = async (data: ProviderProfileFormData) => {
     try {
-      // Create FormData for multipart/form-data submission
       const formData = new FormData();
 
-      // Add text fields
       formData.append("user_id", user?.id?.toString() || "");
       formData.append("name", data.name);
       formData.append("description", data.description);
       formData.append("address", data.address);
       formData.append("phone", data.phone);
       formData.append("mobile", data.mobile);
-
-      // Add services as JSON string
       formData.append("services", JSON.stringify(data.services));
 
-      // Add thumbnail file if selected
       if (thumbnailFile) {
         formData.append("thumbnail", thumbnailFile);
       }
@@ -290,7 +280,6 @@ const ProviderSettingsPage = () => {
                                   ]);
                                 }
                               } else {
-                                // Remove service ID
                                 form.setValue(
                                   "services",
                                   currentServices.filter(

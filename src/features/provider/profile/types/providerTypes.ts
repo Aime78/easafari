@@ -11,7 +11,7 @@ export interface ProviderProfile {
   name: string;
   description: string;
   address: string;
-  thumbnail?: string; // URL from backend
+  thumbnail?: string;
   phone: string;
   mobile: string;
   services: {
