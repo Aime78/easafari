@@ -140,7 +140,7 @@ const router = createBrowserRouter([
   {
     path: "/provider",
     element: (
-      <ProtectedRoute allowedRoles={["service_provider"]}>
+      <ProtectedRoute allowedRoles={["provider"]}>
         <ProviderLayout />
       </ProtectedRoute>
     ),
