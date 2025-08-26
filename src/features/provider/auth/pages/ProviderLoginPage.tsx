@@ -8,10 +8,10 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import logo from "@/assets/logo.png";
-import { LoginForm } from "../components/LoginForm";
-import { useAuth } from "../hooks/useAuth";
+import { ProviderLoginForm } from "../components/ProviderLoginForm";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
-const LoginPage = () => {
+const ProviderLoginPage = () => {
   const [loginError, setLoginError] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,7 +19,8 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      const from = location.state?.from?.pathname || "/dashboard";
+      navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location]);
 
@@ -63,7 +64,7 @@ const LoginPage = () => {
               Sign in to your account
             </CardTitle>
             <CardDescription>
-              Enter your credentials to access your account
+              Enter your credentials to access your dashboard
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -72,7 +73,7 @@ const LoginPage = () => {
                 {loginError}
               </div>
             )}
-            <LoginForm onLoginError={handleLoginError} />
+            <ProviderLoginForm onLoginError={handleLoginError} />
           </CardContent>
         </Card>
       </div>
@@ -80,4 +81,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ProviderLoginPage;

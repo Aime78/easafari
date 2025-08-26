@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type z from "zod";
-import { registerSchema } from "../schemas/authSchemas";
+import { registerSchema } from "../schemas/providerAuthSchemas";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+import { useProviderRegister } from "../hooks/useProviderAuth";
 import logo from "@/assets/logo.png";
 import {
   Card,
@@ -23,10 +24,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOff, Loader2 } from "lucide-react";
 
-const RegisterPage = () => {
+const ProviderRegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [registerError, setRegisterError] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const registerMutation = useProviderRegister();
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -35,23 +35,16 @@ const RegisterPage = () => {
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
-      companyName: "",
+      phone: "",
+      position: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
-    setRegisterError("");
-    setIsLoading(true);
-
-    console.log("Registration form submitted:", values);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      form.reset();
-      console.log("Registration successful");
-    }, 2000);
+    registerMutation.mutate(values);
   }
 
   return (
@@ -87,16 +80,18 @@ const RegisterPage = () => {
         <Card className="w-[500px] shadow-lg backdrop-blur-md bg-white/95">
           <CardHeader className="space-y-2 text-center">
             <CardTitle className="text-2xl font-bold">
-              Create your account
+              Create your provider account
             </CardTitle>
             <CardDescription>
-              Enter your company details to get started
+              Enter your details to get started as a provider
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {registerError && (
+            {registerMutation.error && (
               <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                {registerError}
+                {registerMutation.error.response?.data?.message ||
+                  registerMutation.error.message ||
+                  "Registration failed. Please try again."}
               </div>
             )}
             <Form {...form}>
@@ -106,15 +101,15 @@ const RegisterPage = () => {
               >
                 <FormField
                   control={form.control}
-                  name="companyName"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">
-                        Company Name
+                        Name
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Your Company Name"
+                          placeholder="Edwin Musiime"
                           {...field}
                           className="h-11"
                         />
@@ -130,11 +125,11 @@ const RegisterPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">
-                        Company Email
+                        Email
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="company@example.com"
+                          placeholder="edwin@gmail.com"
                           {...field}
                           className="h-11"
                         />
@@ -156,7 +151,7 @@ const RegisterPage = () => {
                         <div className="relative">
                           <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
+                            placeholder="password"
                             {...field}
                             className="h-11"
                           />
@@ -178,8 +173,48 @@ const RegisterPage = () => {
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">
+                        Phone
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="256780203994"
+                          {...field}
+                          className="h-11"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="position"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">
+                        Position
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Position (eg. CEO, Manager, Secretary)"
+                          {...field}
+                          className="h-11"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+
                 <div className="space-y-4">
-                  {isLoading ? (
+                  {registerMutation.isPending ? (
                     <Button disabled className="w-full h-11 text-lg">
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating account...
@@ -189,12 +224,12 @@ const RegisterPage = () => {
                       type="submit"
                       className="w-full h-11 text-white font-bold cursor-pointer text-base"
                     >
-                      Create Account
+                      Create Provider Account
                     </Button>
                   )}
 
                   <div className="text-center text-sm text-muted-foreground">
-                    Already have an account?{" "}
+                    Already have a provider account?{" "}
                     <a
                       href="/login"
                       className="text-primary underline-offset-4 hover:underline"
@@ -212,4 +247,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default ProviderRegisterPage;
