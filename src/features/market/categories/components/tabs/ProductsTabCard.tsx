@@ -29,7 +29,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { Plus, Eye, Trash, Edit } from "lucide-react";
+import { Plus, Eye, Trash, Edit, RotateCcw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -43,21 +43,69 @@ const ProductsTabCard = () => {
   const [openProduct, setOpenProduct] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    storeId: "all",
+    category: "all",
+    sortBy: "",
+  });
+
   const [filteredProducts, setFilteredProducts] = useState(products);
 
   useEffect(() => {
-    let searched = [...products];
+    let filteredProducts = [...products];
 
     if (searchQuery.trim() !== "") {
-      searched = searched.filter(
+      filteredProducts = filteredProducts.filter(
         (p) =>
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    setFilteredProducts(searched);
-  }, [searchQuery]);
+    if (filters.storeId !== "all") {
+      filteredProducts = filteredProducts.filter(
+        (prod) => prod.store_id.toString() === filters.storeId
+      );
+    }
+
+    if (filters.category !== "all") {
+      filteredProducts = filteredProducts.filter(
+        (prod) => prod.category_id.toString() === filters.category
+      );
+    }
+
+    if (filters.sortBy === "newest") {
+      filteredProducts.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    } else if (filters.sortBy === "oldest") {
+      filteredProducts.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+    } else if (filters.sortBy === "rating") {
+      filteredProducts.sort((a, b) => b.rating - a.rating);
+    }
+
+    setFilteredProducts(filteredProducts);
+  }, [searchQuery, filters]);
+
+  const handleFilterChange = (key: string, val: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: val,
+    }));
+  };
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setFilters({
+      storeId: "all",
+      category: "all",
+      sortBy: "",
+    });
+  };
 
   return (
     <Card>
@@ -125,44 +173,52 @@ const ProductsTabCard = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Select>
+          <Select
+            value={filters.storeId.toString()}
+            onValueChange={(value) => handleFilterChange("storeId", value)}
+          >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Store" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">All Stores</SelectItem>
               {stores.map((s) => (
-                <SelectItem value={s.name.toLowerCase()}>{s.name}</SelectItem>
+                <SelectItem value={s.id.toString()}>{s.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select>
+          <Select
+            value={filters.category}
+            onValueChange={(val) => handleFilterChange("category", val)}
+          >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map((c) => (
-                <SelectItem value={c.name}>{c.name}</SelectItem>
+                <SelectItem value={c.id.toString()}>{c.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Rating" />
+          <Select
+            value={filters.sortBy}
+            onValueChange={(val) => handleFilterChange("sortBy", val)}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Sort By" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="5">⭐⭐⭐⭐⭐</SelectItem>
-              <SelectItem value="4">⭐⭐⭐⭐ & up</SelectItem>
-              <SelectItem value="3">⭐⭐⭐ & up</SelectItem>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="oldest">Oldest</SelectItem>
+              <SelectItem value="rating">Rating</SelectItem>
             </SelectContent>
           </Select>
-
-          <select className="border rounded-md px-3 py-2 text-sm">
-            <option value="newest">Sort by: Newest</option>
-            <option value="oldest">Sort by: Oldest</option>
-            <option value="most">Sort by: Most Products</option>
-          </select>
+          <Button variant="outline" onClick={resetFilters}>
+            <RotateCcw />
+          </Button>
         </div>
 
         {/* Products Table */}

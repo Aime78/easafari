@@ -8,7 +8,6 @@ export const stores = [
   },
   {
     id: 2,
-
     name: "Urban Mart",
     description: "",
     products: ["one", "two", "three", "one", "two", "three"],
