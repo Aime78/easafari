@@ -1,10 +1,4 @@
-import {
-  Home,
-  Bed,
-  MapPin,
-  Settings,
-  Plus,
-} from "lucide-react";
+import { Home, Bed, MapPin, Settings, Plus, Store } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
@@ -36,6 +30,11 @@ const ProviderSidebar = () => {
           <NavLink to={"/provider/experiences"} className={getLinkClassName}>
             <Bed className="w-4 h-4" />
             <span>Experiences</span>
+          </NavLink>
+
+          <NavLink to={"/provider/market"} className={getLinkClassName}>
+            <Store className="w-4 h-4" />
+            <span>Market</span>
           </NavLink>
 
           <NavLink to={"/provider/bookings"} className={getLinkClassName}>
