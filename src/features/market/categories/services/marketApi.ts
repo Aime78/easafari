@@ -74,7 +74,7 @@ axiosInstance.interceptors.response.use(
 export const get = async (url: string, config = {}) => {
   try {
     const response = await axiosInstance.get(url, config);
-    return response.data;
+    return response;
   } catch (error) {
     console.log("error in get");
 
@@ -85,7 +85,7 @@ export const get = async (url: string, config = {}) => {
 export const post = async (url: string, data = {}, config = {}) => {
   try {
     const response = await axiosInstance.post(url, data, config);
-    return response.data;
+    return response;
   } catch (error) {
     console.log("error in post");
 
@@ -96,7 +96,7 @@ export const post = async (url: string, data = {}, config = {}) => {
 export const put = async (url: string, data = {}, config = {}) => {
   try {
     const response = await axiosInstance.put(url, data, config);
-    return response.data;
+    return response;
   } catch (error) {
     console.log("error in put");
 
@@ -107,7 +107,7 @@ export const put = async (url: string, data = {}, config = {}) => {
 export const del = async (url: string, data = {}) => {
   try {
     const response = await axiosInstance.delete(url, data);
-    return response.data;
+    return response;
   } catch (error) {
     console.log("error in del");
 
@@ -119,7 +119,6 @@ export const marketApi = {
   getMyCategories: async () => {
     try {
       const cats = await get("/provider/market/categories");
-
       return cats;
     } catch (error) {
       console.log("error in getMyCategories");
