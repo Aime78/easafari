@@ -24,7 +24,7 @@ import type { ProviderProfileFormData } from "../schemas/providerSchemas";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   useProviderProfile,
-  useUpdateProviderProfile,
+  useSaveProviderProfile,
   useProviderServices,
 } from "../hooks/useProvider";
 import { toastNotification } from "@/components/custom/ToastNotification";
@@ -38,9 +38,12 @@ const ProviderSettingsPage = () => {
 
   const { data: profileData, isLoading: isLoadingProfile } =
     useProviderProfile();
-  const updateProfileMutation = useUpdateProviderProfile();
+  const saveProfileMutation = useSaveProviderProfile();
   const { data: services = [], isLoading: isLoadingServices } =
     useProviderServices();
+
+  // Determine if this is an update (profile exists) or create (new profile)
+  const isUpdate = Boolean(profileData?.id);
 
   const form = useForm<ProviderProfileFormData>({
     resolver: zodResolver(providerProfileSchema),
@@ -69,7 +72,7 @@ const ProviderSettingsPage = () => {
 
       if (profileData.thumbnail) {
         setThumbnailPreview(
-          `${import.meta.env.VITE_API_BASE_URL}/profileData.thumbnail`
+          `${import.meta.env.VITE_API_BASE_URL}/${profileData.thumbnail}`
         );
       }
     }
@@ -87,31 +90,58 @@ const ProviderSettingsPage = () => {
 
   const onSubmit = async (data: ProviderProfileFormData) => {
     try {
-      const formData = new FormData();
+      if (isUpdate) {
+        // For updates, send JSON data
+        const updateData = {
+          user_id: user?.id?.toString() || "",
+          name: data.name,
+          description: data.description,
+          address: data.address,
+          phone: data.phone,
+          mobile: data.mobile,
+          services: JSON.stringify(data.services),
+        };
 
-      formData.append("user_id", user?.id?.toString() || "");
-      formData.append("name", data.name);
-      formData.append("description", data.description);
-      formData.append("address", data.address);
-      formData.append("phone", data.phone);
-      formData.append("mobile", data.mobile);
-      formData.append("services", JSON.stringify(data.services));
+        await saveProfileMutation.mutateAsync({
+          data: updateData,
+          isUpdate,
+          profileId: profileData?.id,
+        });
+      } else {
+        // For creates, use FormData to handle file uploads
+        const formData = new FormData();
+        formData.append("user_id", user?.id?.toString() || "");
+        formData.append("name", data.name);
+        formData.append("description", data.description);
+        formData.append("address", data.address);
+        formData.append("phone", data.phone);
+        formData.append("mobile", data.mobile);
+        formData.append("services", JSON.stringify(data.services));
 
-      if (thumbnailFile) {
-        formData.append("thumbnail", thumbnailFile);
+        if (thumbnailFile) {
+          formData.append("thumbnail", thumbnailFile);
+        }
+
+        await saveProfileMutation.mutateAsync({
+          data: formData,
+          isUpdate,
+          profileId: profileData?.id,
+        });
       }
 
-      await updateProfileMutation.mutateAsync(formData);
-
       toastNotification.success(
-        "Profile Updated",
-        "Your provider profile has been successfully updated."
+        isUpdate ? "Profile Updated" : "Profile Created",
+        isUpdate
+          ? "Your provider profile has been successfully updated."
+          : "Your provider profile has been successfully created."
       );
     } catch (error) {
-      console.error("Update failed:", error);
+      console.error("Save failed:", error);
       toastNotification.error(
-        "Update Failed",
-        "Failed to update your provider profile. Please try again."
+        isUpdate ? "Update Failed" : "Create Failed",
+        isUpdate
+          ? "Failed to update your provider profile. Please try again."
+          : "Failed to create your provider profile. Please try again."
       );
     }
   };
@@ -306,15 +336,17 @@ const ProviderSettingsPage = () => {
                 <Button
                   type="submit"
                   disabled={
-                    form.formState.isSubmitting ||
-                    updateProfileMutation.isPending
+                    form.formState.isSubmitting || saveProfileMutation.isPending
                   }
                   className="w-full"
                 >
-                  {form.formState.isSubmitting ||
-                  updateProfileMutation.isPending
-                    ? "Updating..."
-                    : "Update Profile"}
+                  {form.formState.isSubmitting || saveProfileMutation.isPending
+                    ? isUpdate
+                      ? "Updating..."
+                      : "Creating..."
+                    : isUpdate
+                    ? "Update Profile"
+                    : "Create Profile"}
                 </Button>
               </form>
             </Form>

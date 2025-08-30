@@ -7,7 +7,9 @@ export { providerService } from "./services/providerService";
 // Hooks
 export {
   useProviderProfile,
+  useCreateProviderProfile,
   useUpdateProviderProfile,
+  useSaveProviderProfile,
 } from "./hooks/useProvider";
 
 // Types
