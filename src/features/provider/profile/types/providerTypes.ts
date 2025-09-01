@@ -37,6 +37,17 @@ export interface ProviderProfileFormData {
   };
 }
 
+// Type for updating profile (JSON data without file)
+export interface ProviderProfileUpdateData {
+  user_id: string;
+  name: string;
+  description: string;
+  address: string;
+  phone: string;
+  mobile: string;
+  services: string; // JSON stringified array
+}
+
 export interface ApiErrorResponse {
   message: string;
   errors?: Record<string, string[]>;
