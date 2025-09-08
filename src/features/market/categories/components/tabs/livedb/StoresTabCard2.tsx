@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -11,23 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-  DialogFooter,
-} from "@/components/ui/dialog";
-
-import { Textarea } from "@/components/ui/textarea";
-
-import { Eye, Trash, Edit } from "lucide-react";
 
 import { useStoreQuery } from "../../../hooks/useStores";
 import AddEditStoreDialog from "../../dialogs/storeDialogs/AddEditStoreDialog";
+import StoreDetailsDialog from "../../dialogs/storeDialogs/StoreDetailsDialog";
+import DeleteStoreDialog from "../../dialogs/storeDialogs/DeleteStoreDialog";
 
 const StoresTabCard2 = () => {
   const { stores, isLoading } = useStoreQuery();
@@ -145,133 +132,15 @@ const StoresTabCard2 = () => {
               filteredStores.map((store) => (
                 <TableRow key={store.id}>
                   <TableCell>{store.name}</TableCell>
-                  <TableCell>0</TableCell>
+                  <TableCell>{store?.products_count ?? 0}</TableCell>
                   {/* Safe fallback since products might not exist */}
                   <TableCell>
                     {new Date(store.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="flex gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="outline">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>{store.name} Store details</DialogTitle>
-                          <DialogDescription>
-                            {store.description}
-                          </DialogDescription>
-                        </DialogHeader>
-
-                        <div className="space-y-2">
-                          <p>
-                            <strong>Address:</strong> {store.address}
-                          </p>
-                          <p>
-                            <strong>Opening Hours:</strong>{" "}
-                            {store.opening_hours}
-                          </p>
-                          <p>
-                            <strong>Latitude:</strong> {store.latitude}
-                          </p>
-                          <p>
-                            <strong>Longitude:</strong> {store.longitude}
-                          </p>
-                          <p>
-                            <strong>Created On:</strong>{" "}
-                            {new Date(store.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-
-                        <h3 className="mt-4 font-semibold">Products</h3>
-                        {/*store.products && store.products.length > 0 ? (
-                          <ul className="list-disc pl-5 space-y-1">
-                            {store.products.map((product, index) => (
-                              <li key={index}>{product.name || product}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-gray-500">No products added yet</p>
-                        ) */}
-                        <p className="text-gray-500">No products added yet</p>
-                      </DialogContent>
-                    </Dialog>
-
-                    <Dialog>
-                      <form>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Edit store</DialogTitle>
-                          </DialogHeader>
-
-                          <Input
-                            defaultValue={store.name}
-                            placeholder="Store Name"
-                          />
-                          <Textarea
-                            defaultValue={store.description}
-                            placeholder="Description"
-                          />
-                          <Input
-                            defaultValue={store.address}
-                            placeholder="Address"
-                          />
-                          <Input
-                            defaultValue={store.latitude}
-                            placeholder="Latitude"
-                            type="number"
-                          />
-                          <Input
-                            defaultValue={store.longitude}
-                            placeholder="Longitude"
-                            type="number"
-                          />
-                          <Input
-                            defaultValue={store.opening_hours}
-                            placeholder="Opening Hours"
-                          />
-
-                          <DialogFooter>
-                            <DialogClose asChild>
-                              <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                            <Button type="submit">Save changes</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </form>
-                    </Dialog>
-
-                    <Dialog>
-                      <DialogTrigger>
-                        <Button size="sm" variant="destructive">
-                          <Trash className="w-4 h-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Are you absolutely sure?</DialogTitle>
-                          <DialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete "{store.name}" store.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                          </DialogClose>
-                          <Button type="submit" variant="destructive">
-                            Yes, delete
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                    <StoreDetailsDialog store={store} />
+                    <AddEditStoreDialog store={store} />
+                    <DeleteStoreDialog store={store} />
                   </TableCell>
                 </TableRow>
               ))

@@ -1,0 +1,67 @@
+import { Button } from "@/components/ui/button";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+import { Trash } from "lucide-react";
+
+import type { Store } from "../../../types/marketTypes";
+import { useDeleteStoreMutation } from "../../../hooks/useStores";
+
+const DeleteStoreDialog = ({ store }: { store: Store }) => {
+  const { mutateAsync: deleteStore } = useDeleteStoreMutation();
+
+  const handleDelete = async () => {
+    await deleteStore(
+      { id: Number(store.id) },
+      {
+        onSuccess: () => {
+          //todo show toast
+
+          console.log("Store deleted");
+        },
+        onError: (error) => {
+          //todo show toast
+
+          console.log("Error deleting store:", error);
+        },
+      }
+    );
+  };
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button size="sm" variant="destructive">
+          <Trash className="w-4 h-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete "
+            {store.name}" store.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button onClick={handleDelete} variant="destructive">
+            Yes, delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default DeleteStoreDialog;

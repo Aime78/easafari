@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 
 import { Plus, Edit } from "lucide-react";
-import type { Product } from "../../../marketTypes";
+import type { Product } from "../../../types/marketTypes";
 
 import { stores, categories, subCategories } from "../../../data/dummyData";
 

@@ -38,7 +38,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import type { Category, SubCategory } from "../../../marketTypes";
+import type { Category, SubCategory } from "../../../types/marketTypes";
 import z from "zod";
 
 interface AddEditCategoryDialogZod2Props {

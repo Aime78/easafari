@@ -41,7 +41,7 @@ import { useStoreQuery } from "../../../hooks/useStores";
 import { useCategoryQuery } from "../../../hooks/useCategories";
 import { colorOptions, sizeOptions } from "../../../lib/myData";
 import { useCreateProduct } from "../../../hooks/useProducts";
-import type { Product } from "../../../marketTypes";
+import type { Product } from "../../../types/marketTypes";
 
 interface AddEditProductDialog2Props {
   product?: Product;

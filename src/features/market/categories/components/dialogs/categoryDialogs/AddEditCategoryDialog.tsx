@@ -26,7 +26,7 @@ import {
   useCreateSubCategoryMutation,
 } from "../../../hooks/useCategories";
 import { categorySchema } from "../../../schemas/marketSchemas";
-import type { Category } from "../../../marketTypes";
+import type { Category } from "../../../types/marketTypes";
 
 type CategoryData = {
   name: string;

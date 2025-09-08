@@ -9,6 +9,10 @@ export type Store = {
   updated_at: string;
   created_at: string;
   id: number;
+  products?: Product[];
+  orders?: Order[];
+  products_count?: number;
+  orders_count?: number;
 };
 
 export type Product = {
