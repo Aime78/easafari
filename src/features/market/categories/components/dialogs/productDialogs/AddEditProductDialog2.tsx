@@ -95,11 +95,13 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
     }
 
     if (data?.colors && data.colors.length > 0) {
-      data.colors.forEach((color) => formData.append("colors[]", color));
+      //data.colors.forEach((color) => formData.append("colors[]", color));
+      formData.append("colors", data.colors);
     }
 
     if (data?.sizes && data.sizes.length > 0) {
-      data.sizes.forEach((size) => formData.append("sizes[]", size));
+      formData.append("colors", data.sizes);
+      //data.sizes.forEach((size) => formData.append("sizes[]", size));
     }
 
     // ✅ Log the formData entries
