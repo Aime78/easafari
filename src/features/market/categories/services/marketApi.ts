@@ -1,4 +1,11 @@
 import axios from "axios";
+import type {
+  Category,
+  Order,
+  Product,
+  Store,
+  SubCategory,
+} from "../marketTypes";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL_GENERAL,
@@ -71,9 +78,9 @@ axiosInstance.interceptors.response.use(
 
 //UTILITY FUNCTIONS
 
-export const get = async (url: string, config = {}) => {
+export const get = async <T>(url: string, config = {}): Promise<T> => {
   try {
-    const response = await axiosInstance.get(url, config);
+    const response: T = await axiosInstance.get(url, config);
     return response;
   } catch (error) {
     console.log("error in get");
@@ -82,12 +89,12 @@ export const get = async (url: string, config = {}) => {
   }
 };
 
-export const post = async (url: string, data = {}, config = {}) => {
+export const post = async <T>(url: string, data = {}, config = {}) => {
   try {
-    const response = await axiosInstance.post(url, data, config);
+    const response: T = await axiosInstance.post(url, data, config);
     return response;
   } catch (error) {
-    console.log("error in post");
+    console.log("error in post: ", error);
 
     throw error;
   }
@@ -118,7 +125,7 @@ export const del = async (url: string, data = {}) => {
 export const marketApi = {
   getMyCategories: async () => {
     try {
-      const cats = await get("/provider/market/categories");
+      const cats = await get<Category[]>("/provider/market/categories");
       return cats;
     } catch (error) {
       console.log("error in getMyCategories");
@@ -128,11 +135,15 @@ export const marketApi = {
 
   createCategory: async (formData: FormData) => {
     try {
-      const response = await post("/provider/market/categories", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await post<Category>(
+        "/provider/market/categories",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       return response;
     } catch (error) {
@@ -143,7 +154,9 @@ export const marketApi = {
 
   getMySubCategories: async () => {
     try {
-      const subCats = await get("/provider/market/sub-categories");
+      const subCats = await get<SubCategory[]>(
+        "/provider/market/sub-categories"
+      );
 
       return subCats;
     } catch (error) {
@@ -154,11 +167,15 @@ export const marketApi = {
 
   createSubCategories: async (formData: FormData) => {
     try {
-      const response = await post("/provider/market/sub-categories", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await post<SubCategory>(
+        "/provider/market/sub-categories",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       return response;
     } catch (error) {
@@ -168,18 +185,42 @@ export const marketApi = {
   },
 
   createProduct: async (formData: FormData) => {
+    console.log("start create prod");
+
     try {
-      const response = await post("/market/products", formData);
+      const response = await post<Product>(
+        "/provider/market/products",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // ✅ important
+          },
+        }
+      );
       return response;
     } catch (error) {
-      console.log("error in createProduct");
+      console.log("error in createProduct: ", error);
+      throw error;
+    }
+  },
+
+  getAllProducts: async () => {
+    try {
+      const products = await get<Product[]>("/provider/market/products");
+
+      return products;
+    } catch (error) {
+      console.log("error in getAllProducts");
+
       throw error;
     }
   },
 
   getProductsByCategory: async (id: number) => {
     try {
-      const products = await get(`/market/categories/${id}/products/`);
+      const products = await get<Product[]>(
+        `/market/categories/${id}/products/`
+      );
       return products;
     } catch (error) {
       console.log("error in getProductsByCategory");
@@ -189,7 +230,9 @@ export const marketApi = {
 
   getProductsBySubCategory: async (id: number) => {
     try {
-      const products = await get(`/market/sub_categories/${id}/products/`);
+      const products = await get<SubCategory[]>(
+        `/market/sub_categories/${id}/products/`
+      );
       return products;
     } catch (error) {
       console.log("error in getProductsBySubCategory");
@@ -199,7 +242,7 @@ export const marketApi = {
 
   getSingleProduct: async (id: number) => {
     try {
-      const product = await get(`/market/products/${id}`, {
+      const product = await get<Product>(`/market/products/${id}`, {
         headers: {
           Authorization: `Bearer ${import.meta.env.VITE_API_SECOND_TOKEN}`,
         },
@@ -213,7 +256,11 @@ export const marketApi = {
 
   createOrder: async (formdata: FormData) => {
     try {
-      const response = await post("/market/orders", formdata);
+      const response = await post<Order>("/market/orders", formdata, {
+        headers: {
+          "Content-Type": "multipart/form-data", // ✅ important
+        },
+      });
 
       return response;
     } catch (error) {
@@ -224,7 +271,7 @@ export const marketApi = {
 
   getOrders: async () => {
     try {
-      const orders = await get("/market/orders", {
+      const orders = await get<Order>("/market/orders", {
         headers: {
           Authorization: `Bearer ${import.meta.env.VITE_API_SECOND_TOKEN}`,
         },
@@ -238,7 +285,7 @@ export const marketApi = {
 
   searchProducts: async (query: string) => {
     try {
-      const results = await get(`/market/search?query=${query}`, {
+      const results = await get<Product[]>(`/market/search?query=${query}`, {
         headers: {
           Authorization: `Bearer ${import.meta.env.VITE_API_SECOND_TOKEN}`,
         },
@@ -246,6 +293,34 @@ export const marketApi = {
       return results;
     } catch (error) {
       console.log("error in searchProducts");
+      throw error;
+    }
+  },
+
+  createStore: async (formData: FormData) => {
+    try {
+      const response = await post<Store>("/provider/market/stores", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // ✅ important
+        },
+      });
+
+      return response;
+    } catch (error) {
+      console.log("error in createStore");
+
+      throw error;
+    }
+  },
+
+  getStores: async () => {
+    try {
+      const response = await get<Store[]>("/provider/market/stores");
+
+      return response;
+    } catch (error) {
+      console.log("error in getStores");
+
       throw error;
     }
   },

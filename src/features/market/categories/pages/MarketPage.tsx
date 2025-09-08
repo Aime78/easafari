@@ -2,16 +2,16 @@ import { useState } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import StoresTabCard from "../components/tabs/StoresTabCard";
-import CategoriesTabCard from "../components/tabs/CategoriesTabCard";
-import ProductsTabCard from "../components/tabs/ProductsTabCard";
 import OrdersTabCard from "../components/tabs/OrdersTabCard";
+import StoresTabCard2 from "../components/tabs/livedb/StoresTabCard2";
+import CategoriesTabCard2 from "../components/tabs/livedb/CategoriesTabCard2";
+import ProductsTabCard2 from "../components/tabs/livedb/ProductsTabCard2";
 
 const MarketPage = () => {
   const [activeTab, setActiveTab] = useState("stores");
 
   return (
-    <div className="p-6 flex flex-col gap-6 border-b-2">
+    <div className="p-6 flex flex-col gap-6">
       <h1 className="font-bold text-2xl">Market Management</h1>
 
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
@@ -23,15 +23,15 @@ const MarketPage = () => {
         </TabsList>
 
         <TabsContent value="stores">
-          <StoresTabCard />
+          <StoresTabCard2 />
         </TabsContent>
 
         <TabsContent value="categories">
-          <CategoriesTabCard />
+          <CategoriesTabCard2 />
         </TabsContent>
 
         <TabsContent value="products">
-          <ProductsTabCard />
+          <ProductsTabCard2 />
         </TabsContent>
 
         <TabsContent value="orders">

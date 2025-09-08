@@ -30,9 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toastNotification } from "@/components/custom/ToastNotification";
 import { createAttractionSchema } from "../schemas/attractionSchemas";
-import {
-  useAttractionCategories,
-} from "../hooks/useAttraction";
+import { useAttractionCategories } from "../hooks/useAttraction";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { attractionService } from "../services/attractionService";
 
@@ -52,9 +50,11 @@ export const AddAttractionDialog = ({
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [additionalImages, setAdditionalImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  
+
   const queryClient = useQueryClient();
-  const { categories, loading: categoriesLoading } = useAttractionCategories();  const form = useForm<AddAttractionForm>({
+  const { categories, loading: categoriesLoading } = useAttractionCategories();
+
+  const form = useForm<AddAttractionForm>({
     resolver: zodResolver(createAttractionSchema),
     defaultValues: {
       name: "",
@@ -68,23 +68,25 @@ export const AddAttractionDialog = ({
   });
 
   const createAttractionMutation = useMutation({
-    mutationFn: async (data: AddAttractionForm & { thumbnail?: File; images?: File[] }) => {
+    mutationFn: async (
+      data: AddAttractionForm & { thumbnail?: File; images?: File[] }
+    ) => {
       const formData = new FormData();
-      
+
       // Add text fields
-      formData.append('name', data.name);
-      formData.append('description', data.description);
-      formData.append('address', data.address);
-      formData.append('latitude', data.latitude);
-      formData.append('longitude', data.longitude);
-      formData.append('rating', data.rating);
-      formData.append('attraction_category_id', data.attraction_category_id);
-      
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("address", data.address);
+      formData.append("latitude", data.latitude);
+      formData.append("longitude", data.longitude);
+      formData.append("rating", data.rating);
+      formData.append("attraction_category_id", data.attraction_category_id);
+
       // Add thumbnail
       if (data.thumbnail) {
-        formData.append('thumbnail', data.thumbnail);
+        formData.append("thumbnail", data.thumbnail);
       }
-      
+
       // Add additional images
       if (data.images && data.images.length > 0) {
         data.images.forEach((image, index) => {
@@ -95,11 +97,8 @@ export const AddAttractionDialog = ({
       return attractionService.create(formData);
     },
     onSuccess: () => {
-      toastNotification.success(
-        "Success!",
-        "Attraction created successfully!"
-      );
-      queryClient.invalidateQueries({ queryKey: ['attractions'] });
+      toastNotification.success("Success!", "Attraction created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["attractions"] });
       form.reset();
       setThumbnailFile(null);
       setThumbnailPreview(null);
@@ -116,7 +115,9 @@ export const AddAttractionDialog = ({
     },
   });
 
-  const handleThumbnailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
@@ -128,7 +129,9 @@ export const AddAttractionDialog = ({
     }
   };
 
-  const handleAdditionalImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdditionalImagesChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = Array.from(event.target.files || []);
     if (files.length > 0) {
       const newImages = [...additionalImages, ...files];
@@ -165,14 +168,12 @@ export const AddAttractionDialog = ({
   return (
     <>
       <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogTrigger asChild>
-          {children}
-        </AlertDialogTrigger>
+        <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
         <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <AlertDialogHeader>
             <AlertDialogTitle>New Attraction</AlertDialogTitle>
           </AlertDialogHeader>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Name Field */}
@@ -216,7 +217,10 @@ export const AddAttractionDialog = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a category" />
@@ -229,7 +233,10 @@ export const AddAttractionDialog = ({
                           </SelectItem>
                         ) : (
                           categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
+                            <SelectItem
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
                               {category.name}
                             </SelectItem>
                           ))
@@ -249,7 +256,10 @@ export const AddAttractionDialog = ({
                   <FormItem>
                     <FormLabel>Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter attraction address" {...field} />
+                      <Input
+                        placeholder="Enter attraction address"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -265,11 +275,11 @@ export const AddAttractionDialog = ({
                     <FormItem>
                       <FormLabel>Latitude</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           step="any"
-                          placeholder="0.436396" 
-                          {...field} 
+                          placeholder="0.436396"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -284,11 +294,11 @@ export const AddAttractionDialog = ({
                     <FormItem>
                       <FormLabel>Longitude</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           step="any"
-                          placeholder="30.3641312" 
-                          {...field} 
+                          placeholder="30.3641312"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -305,13 +315,13 @@ export const AddAttractionDialog = ({
                   <FormItem>
                     <FormLabel>Rating</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
+                      <Input
+                        type="number"
                         step="0.1"
                         min="0"
                         max="5"
-                        placeholder="4.5" 
-                        {...field} 
+                        placeholder="4.5"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -326,7 +336,9 @@ export const AddAttractionDialog = ({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => document.getElementById('thumbnail-upload')?.click()}
+                    onClick={() =>
+                      document.getElementById("thumbnail-upload")?.click()
+                    }
                     className="flex items-center space-x-2 w-full"
                   >
                     <Upload className="h-4 w-4" />
@@ -360,7 +372,9 @@ export const AddAttractionDialog = ({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => document.getElementById('images-upload')?.click()}
+                    onClick={() =>
+                      document.getElementById("images-upload")?.click()
+                    }
                     className="flex items-center space-x-2 w-full"
                   >
                     <Upload className="h-4 w-4" />

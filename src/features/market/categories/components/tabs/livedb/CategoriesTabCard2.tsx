@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,28 +11,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { Trash, ChevronRight, ChevronDown, Edit } from "lucide-react";
 
-import { Plus, Trash, ChevronRight, ChevronDown, Edit } from "lucide-react";
+import { products } from "../../../data/dummyData";
+import AddEditCategoryDialog from "../../dialogs/categoryDialogs/AddEditCategoryDialog";
+import { useCategoryQuery } from "../../../hooks/useCategories";
+import AddEditCategoryDialogZod2 from "../../dialogs/categoryDialogs/AddEditCategoryDialogZod2";
 
-import { categories, subCategories, products } from "../../data/dummyData";
+const CategoriesTabCard2 = () => {
+  const { myCategories, isLoading } = useCategoryQuery();
 
-const CategoriesTabCard = () => {
-  const [openCatalog, setOpenCatalog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCategories, setFilteredCategories] = useState(myCategories);
   // Track expanded categories in Catalog
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
 
@@ -40,47 +31,35 @@ const CategoriesTabCard = () => {
     setExpanded((prev) => ({ ...prev, [cat]: !prev[cat] }));
   };
 
+  useEffect(() => {
+    let catList = [...myCategories];
+
+    if (searchQuery.trim() !== "") {
+      catList = catList.filter((c) =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredCategories(catList);
+  }, [searchQuery, myCategories]);
+
   return (
     <Card>
       <CardContent className="p-4">
         {/* Header */}
         <div className="flex justify-between mb-4">
           <h2 className="text-lg font-semibold">Categories</h2>
-          <Dialog open={openCatalog} onOpenChange={setOpenCatalog}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" /> New Category
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>New Category / Subcategory</DialogTitle>
-              </DialogHeader>
-              <Input placeholder="Name" />
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Parent Category (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">
-                    None (Top-level Category)
-                  </SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem value={c.name.toLowerCase()}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input type="file" /> {/* thumbnail upload */}
-              <Button className="mt-4">Save</Button>
-            </DialogContent>
-          </Dialog>
+          <AddEditCategoryDialogZod2 />
         </div>
 
         {/* Search + Filter */}
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
-          <Input placeholder="Search categories..." className="sm:max-w-sm" />
+          <Input
+            placeholder="Search categories..."
+            className="sm:max-w-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
           <select className="border rounded-md px-3 py-2 text-sm">
             <option>Sort by: Name (A–Z)</option>
             <option>Sort by: Name (Z–A)</option>
@@ -100,11 +79,28 @@ const CategoriesTabCard = () => {
           </TableHeader>
           <TableBody>
             {/* Category row */}
-            {categories.map((cat) => (
+
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-gray-500">
+                  Loading categories...
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!isLoading && myCategories?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-gray-500">
+                  No categories found
+                </TableCell>
+              </TableRow>
+            )}
+
+            {filteredCategories?.map((cat) => (
               <>
                 <TableRow>
                   <TableCell>
-                    <div className="w-10 h-10 bg-gray-200 rounded" />{" "}
+                    <div className="w-10 h-10 bg-gray-200 rounded" />
                     {/* placeholder */}
                   </TableCell>
                   <TableCell
@@ -128,19 +124,16 @@ const CategoriesTabCard = () => {
                     }
                   </TableCell>
                   <TableCell className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      <Edit className="w-4 h-4" />
-                    </Button>
+                    <AddEditCategoryDialog category={cat} />
                     <Button size="sm" variant="destructive">
                       <Trash className="w-4 h-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
                 {expanded[cat.name.toLowerCase()] &&
-                  subCategories
-                    .filter((s) => s.category_id === cat.id)
-                    .map((sc) => (
-                      <TableRow>
+                  (cat.sub_categories && cat.sub_categories.length > 0 ? (
+                    cat.sub_categories.map((sc) => (
+                      <TableRow key={sc.id}>
                         <TableCell>
                           <div className="w-10 h-10 bg-gray-200 rounded" />
                         </TableCell>
@@ -148,7 +141,7 @@ const CategoriesTabCard = () => {
                         <TableCell>
                           {
                             products.filter((p) => p.sub_category_id === sc.id)
-                              ?.length
+                              .length
                           }
                         </TableCell>
                         <TableCell className="flex gap-2">
@@ -160,7 +153,17 @@ const CategoriesTabCard = () => {
                           </Button>
                         </TableCell>
                       </TableRow>
-                    ))}{" "}
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={4}
+                        className="text-center text-gray-500"
+                      >
+                        No subcategories found
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </>
             ))}
           </TableBody>
@@ -170,4 +173,4 @@ const CategoriesTabCard = () => {
   );
 };
 
-export default CategoriesTabCard;
+export default CategoriesTabCard2;
