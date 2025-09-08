@@ -96,11 +96,11 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
 
     if (data?.colors && data.colors.length > 0) {
       //data.colors.forEach((color) => formData.append("colors[]", color));
-      formData.append("colors", data.colors);
+      formData.append("colors", JSON.stringify(data.colors));
     }
 
     if (data?.sizes && data.sizes.length > 0) {
-      formData.append("colors", data.sizes);
+      formData.append("colors", JSON.stringify(data.sizes));
       //data.sizes.forEach((size) => formData.append("sizes[]", size));
     }
 
@@ -187,7 +187,7 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Store (MUST)" />
+                        <SelectValue placeholder="Select Store" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -217,7 +217,7 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select sub category (SUBCAT)" />
+                        <SelectValue placeholder="Select sub category" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
