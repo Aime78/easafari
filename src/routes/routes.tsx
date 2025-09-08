@@ -7,7 +7,7 @@ import { lazy, Suspense } from "react";
 import { AdminLayout } from "@/layouts/admin";
 import { ProviderLayout } from "@/layouts/provider";
 import ProtectedRoute from "@/components/custom/ProtectedRoute";
-import MarketPage from "@/features/market/categories/pages/MarketPage";
+import MarketPage from "@/features/market/pages/MarketPage";
 
 const LoginPage = lazy(() =>
   import("@/features/auth").then((module) => ({ default: module.LoginPage }))
