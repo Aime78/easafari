@@ -39,7 +39,7 @@ import {
 import type { Product } from "../../../types/marketTypes";
 import { productFormSchema } from "@/features/market/lib/schemas/marketSchemas";
 import { useStoreQuery } from "../../stores/hooks/useStores";
-import { useCategoryQuery } from "../../categories/hooks/useCategories";
+import { useSubCategoryQuery } from "../../categories/hooks/useCategories";
 import { colorOptions, sizeOptions } from "../lib/myData";
 import { useCreateProduct } from "../hooks/useProducts";
 
@@ -50,6 +50,8 @@ interface AddEditProductDialog2Props {
 type ProductFormData = z.infer<typeof productFormSchema>;
 
 const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
+  const isCreatingProduct = !product;
+
   const { mutateAsync: createNewProduct } = useCreateProduct();
 
   const form = useForm<ProductFormData>({
@@ -69,13 +71,13 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
   });
 
   const { stores, isLoading } = useStoreQuery();
-  const { myCategories } = useCategoryQuery();
+  //const { myCategories } = useCategoryQuery();
+
+  const { mySubCategories } = useSubCategoryQuery();
 
   //todo convert this to shadcn controlled form with zod validation schema
   //todo and use tanstack query for it
   const [openProduct, setOpenProduct] = useState(false);
-
-  const isCreatingProduct = !product;
 
   const onSubmit = async (data: ProductFormData) => {
     const formData = new FormData();
@@ -142,7 +144,7 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="name"
@@ -175,203 +177,208 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="store_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Choose Store</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+            <div className="flex gap-4 w-full justify-evenly">
+              <FormField
+                control={form.control}
+                name="store_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Choose Store</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Store" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Select Store</SelectItem>
+                        {!isLoading &&
+                          stores.map((s) => (
+                            <SelectItem key={s.id} value={s.id.toString()}>
+                              {s.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="sub_category_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Sub Category</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select sub category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Select subcategory</SelectItem>
+                        {!isLoading &&
+                          mySubCategories.map((s) => (
+                            <SelectItem key={s.id} value={s.id.toString()}>
+                              {s.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex gap-4 w-full justify-evenly">
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantity</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Store" />
-                      </SelectTrigger>
+                      <Input placeholder="In stock" type="number" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">Select Store</SelectItem>
-                      {!isLoading &&
-                        stores.map((s) => (
-                          <SelectItem key={s.id} value={s.id.toString()}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="sub_category_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Sub Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select sub category" />
-                      </SelectTrigger>
+                      <Input placeholder="Price" type="number" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">Select subcategory</SelectItem>
-                      {!isLoading &&
-                        myCategories.map((s) => (
-                          <SelectItem key={s.id} value={s.id.toString()}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Quantity</FormLabel>
-                  <FormControl>
-                    <Input placeholder="In stock" type="number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="discount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discount (%)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Discount" type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Price" type="number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex gap-4 w-full justify-evenly">
+              <FormField
+                control={form.control}
+                name="sizes"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Size Options</FormLabel>
+                    {sizeOptions.map((item) => (
+                      <FormField
+                        key={item.id}
+                        control={form.control}
+                        name="sizes"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={item.id}
+                              className="flex flex-row items-center gap-2"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(item.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([
+                                          ...(field.value ?? []),
+                                          item.id,
+                                        ])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== item.id
+                                          )
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-normal">
+                                {item.label}
+                              </FormLabel>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ))}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="discount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Discount (%)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Discount" type="number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="colors"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Color Options</FormLabel>
 
-            <FormField
-              control={form.control}
-              name="sizes"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Size Options</FormLabel>
-                  {sizeOptions.map((item) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name="sizes"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item.id}
-                            className="flex flex-row items-center gap-2"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([
-                                        ...(field.value ?? []),
-                                        item.id,
-                                      ])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              {item.label}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="colors"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Color Options</FormLabel>
-
-                  {colorOptions.map((item) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name="colors"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item.id}
-                            className="flex flex-row items-center gap-2"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([
-                                        ...(field.value ?? []),
-                                        item.id,
-                                      ])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              {item.label}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+                    {colorOptions.map((item) => (
+                      <FormField
+                        key={item.id}
+                        control={form.control}
+                        name="colors"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={item.id}
+                              className="flex flex-row items-center gap-2"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(item.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([
+                                          ...(field.value ?? []),
+                                          item.id,
+                                        ])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== item.id
+                                          )
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-normal">
+                                {item.label}
+                              </FormLabel>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ))}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="thumbnail" // Or "files" for multiple files
