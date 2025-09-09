@@ -11,12 +11,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Eye } from "lucide-react";
 
 import { products } from "../../../lib/data/dummyData";
 import { useCategoryQuery } from "../hooks/useCategories";
 import AddEditCategoryDialogZod2 from "./AddEditCategoryDialogZod2";
 import DeleteCategoryDialog from "./DeleteCategoryDialog";
+import { Button } from "@/components/ui/button";
 
 const CategoriesTabCard2 = () => {
   const { myCategories, isLoading } = useCategoryQuery();
@@ -142,6 +143,9 @@ const CategoriesTabCard2 = () => {
                           }
                         </TableCell>
                         <TableCell className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <AddEditCategoryDialogZod2 category={sc} />
                           <DeleteCategoryDialog category={sc} />
                         </TableCell>

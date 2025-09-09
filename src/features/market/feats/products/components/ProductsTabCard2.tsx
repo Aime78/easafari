@@ -20,18 +20,21 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { Eye, Trash, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 
 import { TruncatedCell } from "./TruncatedCell";
 import { useStoreQuery } from "../../stores/hooks/useStores";
 import { useProductsQuery } from "../hooks/useProducts";
-import AddEditProductDialog2 from "./AddEditProductDialog2";
+import AddProductDialog from "./AddProductDialog";
 import {
   useCategoryQuery,
   useSubCategoryQuery,
 } from "../../categories/hooks/useCategories";
+import EditProductDialog from "./EditProductDialog";
+import DeleteProductDialog from "./DeleteProductDialog";
+import ProductDetailsDialog from "./ProductDetailsDialog";
 
 const ProductsTabCard2 = () => {
   const { products, isLoading: isProductsLoading } = useProductsQuery();
@@ -113,7 +116,7 @@ const ProductsTabCard2 = () => {
           <h2 className="text-lg font-semibold">Products</h2>
 
           {/* Add Product */}
-          <AddEditProductDialog2 />
+          <AddProductDialog />
         </div>
 
         {/* Filters row */}
@@ -255,14 +258,10 @@ const ProductsTabCard2 = () => {
                   <TableCell>{p.discount_price || 0}%</TableCell>
                   {/*<TableCell>{p.rating} ⭐</TableCell> */}
                   <TableCell className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <AddEditProductDialog2 product={p} />
+                    <ProductDetailsDialog product={p} />
+                    <EditProductDialog product={p} />
 
-                    <Button size="sm" variant="destructive">
-                      <Trash className="w-4 h-4" />
-                    </Button>
+                    <DeleteProductDialog product={p} />
                   </TableCell>
                 </TableRow>
               ))}

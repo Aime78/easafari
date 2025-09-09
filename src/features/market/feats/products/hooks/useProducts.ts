@@ -25,3 +25,44 @@ export const useProductsQuery = () => {
 
   return { products: data || [], isLoading, isError, error };
 };
+
+export const useUpdateProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  const updateProductMutation = useMutation({
+    mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
+      productsApi.updateProduct(id, formData),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: productKeys.all }),
+  });
+
+  return updateProductMutation;
+};
+
+export const useDeleteProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  const deleteProductMutation = useMutation({
+    mutationFn: (id: number) => productsApi.deleteProduct(id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: productKeys.all }),
+  });
+
+  return deleteProductMutation;
+};
+
+export const useSingleProductQuery = (id: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: productKeys.singleProduct(id),
+    queryFn: () => productsApi.getSingleProduct(id),
+    enabled: !!id,
+  });
+
+  return {
+    productDetails: data?.product,
+    similarProducts: data?.similar ?? [],
+    isLoading,
+    isError,
+    error,
+  };
+};

@@ -74,3 +74,8 @@ export type Order = {
   tour_provider_id: number;
   order_number: string;
 };
+
+export type SingleProductResponse = {
+  product: Product;
+  similar: Product[];
+};

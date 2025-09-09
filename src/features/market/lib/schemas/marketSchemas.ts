@@ -63,3 +63,8 @@ export const productFormSchema = z.object({
   colors: z.array(z.string()).optional(),
   sizes: z.array(z.string()).optional(),
 });
+
+// Extended schema (for update → makes thumbnail optional)
+export const productUpdateSchema = productFormSchema.extend({
+  thumbnail: productFormSchema.shape.thumbnail.optional(),
+});

@@ -1,5 +1,9 @@
-import { get, post } from "@/features/market/lib/axios";
-import type { Product, SubCategory } from "@/features/market/types/marketTypes";
+import { del, get, post } from "@/features/market/lib/axios";
+import type {
+  Product,
+  SingleProductResponse,
+  SubCategory,
+} from "@/features/market/types/marketTypes";
 
 export const productsApi = {
   createProduct: async (formData: FormData) => {
@@ -60,14 +64,45 @@ export const productsApi = {
 
   getSingleProduct: async (id: number) => {
     try {
-      const product = await get<Product>(`/market/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_API_SECOND_TOKEN}`,
-        },
-      });
+      const product = await get<SingleProductResponse>(
+        `/market/products/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_API_SECOND_TOKEN}`,
+          },
+        }
+      );
       return product;
     } catch (error) {
       console.log("error in getSingleProduct");
+      throw error;
+    }
+  },
+
+  updateProduct: async (id: number, formData: FormData) => {
+    try {
+      const updatedProduct = await post<Product>(
+        `/provider/market/products/${id}/edit`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // ✅ important
+          },
+        }
+      );
+      return updatedProduct;
+    } catch (error) {
+      console.log("error in updateproduct");
+      throw error;
+    }
+  },
+
+  deleteProduct: async (id: number) => {
+    try {
+      await del(`/provider/market/products/${id}`);
+      console.log("sent del product reques");
+    } catch (error) {
+      console.log("error deleting product");
       throw error;
     }
   },

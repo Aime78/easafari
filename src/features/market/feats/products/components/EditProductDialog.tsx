@@ -23,7 +23,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { Plus, Edit } from "lucide-react";
+import { Edit } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,41 +37,43 @@ import {
 } from "@/components/ui/form";
 
 import type { Product } from "../../../types/marketTypes";
-import { productFormSchema } from "@/features/market/lib/schemas/marketSchemas";
+import { productUpdateSchema } from "@/features/market/lib/schemas/marketSchemas";
 import { useStoreQuery } from "../../stores/hooks/useStores";
 import { useSubCategoryQuery } from "../../categories/hooks/useCategories";
 import { colorOptions, sizeOptions } from "../lib/myData";
-import { useCreateProduct } from "../hooks/useProducts";
+import { useUpdateProductMutation } from "../hooks/useProducts";
 
-interface AddEditProductDialog2Props {
-  product?: Product;
+interface EditProductDialogProps {
+  product: Product;
 }
 
-type ProductFormData = z.infer<typeof productFormSchema>;
+type ProductUpdateFormData = z.infer<typeof productUpdateSchema>;
 
-const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
-  const isCreatingProduct = !product;
+const EditProductDialog = ({ product }: EditProductDialogProps) => {
+  const { mutateAsync: updateProduct } = useUpdateProductMutation();
 
-  const { mutateAsync: createNewProduct } = useCreateProduct();
-
-  const form = useForm<ProductFormData>({
-    resolver: zodResolver(productFormSchema),
+  const form = useForm<ProductUpdateFormData>({
+    resolver: zodResolver(productUpdateSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      quantity: "",
-      price: "",
-      sub_category_id: "",
-      store_id: "",
+      name: product.name ?? "",
+      description: product.description ?? "",
+      quantity: product.quantity?.toString() ?? "0",
+      price: product.price?.toString() ?? "0",
+      discount: product.discount_price?.toString() ?? "0",
+
+      store_id: product.store_id?.toString() ?? "none",
+      sub_category_id: product.sub_category_id?.toString() ?? "none",
+
+      // Thumbnail: backend gives string (url/path), schema expects File
+      // We leave it undefined until user uploads a new file
       thumbnail: undefined,
-      discount: "",
-      colors: [],
-      sizes: [],
+
+      colors: product.colors ? product.colors : [],
+      sizes: product.sizes ? product.sizes : [],
     },
   });
 
   const { stores, isLoading } = useStoreQuery();
-  //const { myCategories } = useCategoryQuery();
 
   const { mySubCategories } = useSubCategoryQuery();
 
@@ -79,7 +81,7 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
   //todo and use tanstack query for it
   const [openProduct, setOpenProduct] = useState(false);
 
-  const onSubmit = async (data: ProductFormData) => {
+  const onSubmit = async (data: ProductUpdateFormData) => {
     const formData = new FormData();
 
     formData.append("name", data.name);
@@ -92,8 +94,6 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
 
     if (data.thumbnail) {
       formData.append("thumbnail", data.thumbnail);
-    } else {
-      formData.append("thumbnail", ""); // backend gets empty string
     }
 
     if (data?.colors && data.colors.length > 0) {
@@ -102,7 +102,7 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
     }
 
     if (data?.sizes && data.sizes.length > 0) {
-      formData.append("colors", JSON.stringify(data.sizes));
+      formData.append("sizes", JSON.stringify(data.sizes));
       //data.sizes.forEach((size) => formData.append("sizes[]", size));
     }
 
@@ -111,36 +111,31 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
       console.log(`${key}:`, value);
     }
 
-    await createNewProduct(formData, {
-      onSuccess: () => {
-        form.reset();
-        setOpenProduct(false);
-        console.log("success crteated");
-      },
-      onError: () => {
-        console.log("fail create");
-      },
-    });
+    await updateProduct(
+      { id: product.id, formData },
+      {
+        onSuccess: () => {
+          form.reset();
+          setOpenProduct(false);
+          console.log("success crteated");
+        },
+        onError: () => {
+          console.log("fail create");
+        },
+      }
+    );
   };
 
   return (
     <Dialog open={openProduct} onOpenChange={setOpenProduct}>
       <DialogTrigger asChild>
-        {isCreatingProduct ? (
-          <Button>
-            <Plus className="w-4 h-4 mr-2" /> Add Product
-          </Button>
-        ) : (
-          <Button size="sm" variant="outline">
-            <Edit className="w-4 h-4" />
-          </Button>
-        )}
+        <Button size="sm" variant="outline">
+          <Edit className="w-4 h-4" />
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isCreatingProduct ? "New Product" : "Edit Product"}
-          </DialogTitle>
+          <DialogTitle>Edit Product</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -413,4 +408,4 @@ const AddEditProductDialog2 = ({ product }: AddEditProductDialog2Props) => {
   );
 };
 
-export default AddEditProductDialog2;
+export default EditProductDialog;
