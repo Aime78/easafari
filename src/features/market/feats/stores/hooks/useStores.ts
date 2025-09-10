@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { storeKeys } from "../../../lib/queryKeys";
+import { storeKeys } from "../../../lib/marketQueryKeys";
 import { storesApi } from "../services/storesApi";
 
 export const useStoreQuery = () => {

@@ -2,7 +2,7 @@
 //hook for querying and hook for retrieving
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { productKeys } from "../../../lib/queryKeys";
+import { productKeys } from "../../../lib/marketQueryKeys";
 import { productsApi } from "../services/productApi";
 
 export const useCreateProduct = () => {
@@ -61,6 +61,34 @@ export const useSingleProductQuery = (id: number) => {
   return {
     productDetails: data?.product,
     similarProducts: data?.similar ?? [],
+    isLoading,
+    isError,
+    error,
+  };
+};
+
+export const useGetProductsByCategoryQuery = (id: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: productKeys.productsByCategory(id),
+    queryFn: () => productsApi.getProductsByCategory(id),
+  });
+
+  return {
+    productsByCategory: data || [],
+    isLoading,
+    isError,
+    error,
+  };
+};
+
+export const useGetProductsBySubCategoryQuery = (id: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: productKeys.productsBySubCategory(id),
+    queryFn: () => productsApi.getProductsBySubCategory(id),
+  });
+
+  return {
+    productsBySubCategory: data || [],
     isLoading,
     isError,
     error,

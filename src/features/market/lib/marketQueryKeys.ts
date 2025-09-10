@@ -16,4 +16,8 @@ export const storeKeys = {
 export const productKeys = {
   all: ["products"] as const,
   singleProduct: (id: number) => [...productKeys.all, id] as const,
+  productsByCategory: (id: number) =>
+    [...productKeys.all, "category", id] as const,
+  productsBySubCategory: (id: number) =>
+    [...productKeys.all, "subcategory", id] as const,
 };

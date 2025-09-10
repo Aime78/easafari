@@ -17,8 +17,9 @@ import { useSingleProductQuery } from "../hooks/useProducts";
 const ProductDetailsDialog = ({ product }: { product: Product }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { productDetails, similarProducts, isLoading, isError, error } =
-    useSingleProductQuery(product.id);
+  const { productDetails, similarProducts, isLoading } = useSingleProductQuery(
+    product.id
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -47,10 +48,6 @@ const ProductDetailsDialog = ({ product }: { product: Product }) => {
           </p>
           <p>
             <strong>discount:</strong> {productDetails?.discount_price}
-          </p>
-          <p>
-            <strong>Created On:</strong>{" "}
-            {new Date(productDetails?.created_at).toLocaleDateString()}
           </p>
         </div>
 
