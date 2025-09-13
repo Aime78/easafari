@@ -1,0 +1,93 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2, AlertTriangle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { providerExperienceService } from "../services/experienceService";
+import { toastNotification } from "@/components/custom/ToastNotification";
+import type { Experience } from "../types/experienceTypes";
+
+interface DeleteProviderExperienceDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  experience: Experience;
+  onSuccess?: () => void;
+}
+
+export const DeleteProviderExperienceDialog = ({
+  open,
+  onOpenChange,
+  experience,
+  onSuccess,
+}: DeleteProviderExperienceDialogProps) => {
+  const queryClient = useQueryClient();
+
+  const deleteExperienceMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return providerExperienceService.delete(id);
+    },
+    onSuccess: () => {
+      toastNotification.success("Success!", "Experience deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["provider", "experiences"] });
+      onOpenChange(false);
+      onSuccess?.();
+    },
+    onError: (error) => {
+      toastNotification.error(
+        "Error",
+        error instanceof Error ? error.message : "Failed to delete experience"
+      );
+    },
+  });
+
+  const handleDelete = () => {
+    deleteExperienceMutation.mutate(experience.id.toString());
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+            </div>
+            <AlertDialogTitle>Delete Experience</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="text-left">
+            Are you sure you want to delete "{experience.name}"? This action
+            cannot be undone and will permanently remove the experience from
+            your listings.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={deleteExperienceMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteExperienceMutation.isPending}
+          >
+            {deleteExperienceMutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Delete Experience
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+export default DeleteProviderExperienceDialog;

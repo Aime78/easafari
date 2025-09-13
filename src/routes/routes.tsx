@@ -61,8 +61,8 @@ const ProviderAccommodationsPage = lazy(() =>
   }))
 );
 const ProviderExperiencesPage = lazy(() =>
-  import("@/features/admin/experience").then((module) => ({
-    default: module.ExperiencesPage,
+  import("@/features/provider/experience").then((module) => ({
+    default: module.ProviderExperiencesPage,
   }))
 );
 const ProviderSettingsPage = lazy(() =>
