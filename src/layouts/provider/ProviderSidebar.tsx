@@ -4,17 +4,54 @@ import {
   MapPin,
   Plus,
   User,
+  Mountain,
+  Calendar,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import logo from "@/assets/logo.png";
+import { useProviderProfile } from "@/features/provider/profile/hooks/useProvider";
 
 const ProviderSidebar = () => {
+  const { data: providerProfile } = useProviderProfile();
+
   const getLinkClassName = ({ isActive }: { isActive: boolean }) =>
     `px-6 py-2 rounded-lg flex items-center gap-2 ${
       isActive
         ? "bg-primary text-white font-medium"
         : "text-black font-normal hover:bg-primary hover:text-white hover:font-medium"
     }`;
+
+  // Service configuration with icons and routes
+  const serviceConfig = {
+    ACCOMMODATION: {
+      icon: Bed,
+      label: "Accommodations",
+      route: "/provider/accommodations",
+    },
+    EXPERIENCE: {
+      icon: Mountain,
+      label: "Experiences",
+      route: "/provider/experiences",
+    },
+    ATTRACTION: {
+      icon: MapPin,
+      label: "Attractions",
+      route: "/provider/attractions",
+    },
+    EVENT: {
+      icon: Calendar,
+      label: "Events",
+      route: "/provider/events",
+    },
+  };
+
+  // Get enabled services from provider profile services array
+  const enabledServices = providerProfile?.services
+    ? providerProfile.services
+        .filter((service) => service.active === 1) // Only active services
+        .map((service) => service.code as keyof typeof serviceConfig)
+        .filter((serviceCode) => serviceConfig[serviceCode]) // Only include services that exist in config
+    : [];
 
   return (
     <div className="bg-[#f6f8fc] flex flex-col">
@@ -33,10 +70,24 @@ const ProviderSidebar = () => {
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to={"/provider/experiences"} className={getLinkClassName}>
-            <Bed className="w-4 h-4" />
-            <span>Services</span>
-          </NavLink>
+          {/* Dynamically render enabled services */}
+          {enabledServices.map((serviceName) => {
+            const service = serviceConfig[serviceName];
+            if (!service) return null; // Safety check
+
+            const IconComponent = service.icon;
+
+            return (
+              <NavLink
+                key={serviceName}
+                to={service.route}
+                className={getLinkClassName}
+              >
+                <IconComponent className="w-4 h-4" />
+                <span>{service.label}</span>
+              </NavLink>
+            );
+          })}
 
           <NavLink to={"/provider/bookings"} className={getLinkClassName}>
             <Plus className="w-4 h-4" />
@@ -44,9 +95,10 @@ const ProviderSidebar = () => {
           </NavLink>
 
           <NavLink to={"/provider/payments"} className={getLinkClassName}>
-            <MapPin className="w-4 h-4" />
+            <Bed className="w-4 h-4" />
             <span>Payments</span>
           </NavLink>
+
           <NavLink to={"/provider/profile"} className={getLinkClassName}>
             <User className="w-4 h-4" />
             <span>Profile</span>
