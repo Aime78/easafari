@@ -72,5 +72,17 @@ export const queryKeys = {
       search: (query: string) =>
         [...queryKeys.provider.experiences.all, "search", query] as const,
     },
+    accommodations: {
+      all: ["provider", "accommodations"] as const,
+      lists: () => [...queryKeys.provider.accommodations.all, "list"] as const,
+      list: (filters: string) =>
+        [...queryKeys.provider.accommodations.lists(), { filters }] as const,
+      details: () =>
+        [...queryKeys.provider.accommodations.all, "detail"] as const,
+      detail: (id: string) =>
+        [...queryKeys.provider.accommodations.details(), id] as const,
+      search: (query: string) =>
+        [...queryKeys.provider.accommodations.all, "search", query] as const,
+    },
   },
 };
