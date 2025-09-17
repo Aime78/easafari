@@ -73,7 +73,7 @@ const ProviderSettingsPage = lazy(() =>
 
 const router = createBrowserRouter([
   {
-    path: "admin/login",
+    path: "/admin/login",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <LoginPage />
@@ -81,7 +81,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "register",
+    path: "/register",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <ProviderRegisterPage />
@@ -89,7 +89,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "login",
+    path: "/login",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <ProviderLoginPage />
