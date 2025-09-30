@@ -100,8 +100,17 @@ const CategoriesTabCard2 = () => {
               <>
                 <TableRow key={cat.id}>
                   <TableCell>
-                    <div className="w-10 h-10 bg-gray-200 rounded" />
-                    {/* placeholder */}
+                    {cat.image ? (
+                      <img
+                        src={`${import.meta.env.VITE_API_IMAGE_BASE_URL}/${
+                          cat.image
+                        }`}
+                        alt={cat.name}
+                        className="w-10 h-10 object-cover rounded-md"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded" />
+                    )}
                   </TableCell>
                   <TableCell
                     className="flex items-center gap-2 cursor-pointer"

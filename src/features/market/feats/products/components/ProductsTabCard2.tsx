@@ -201,7 +201,17 @@ const ProductsTabCard2 = () => {
               filteredProducts.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell>
-                    <div className="w-10 h-10 bg-gray-200 rounded" />
+                    {p.thumbnail ? (
+                      <img
+                        src={`${import.meta.env.VITE_API_IMAGE_BASE_URL}/${
+                          p.thumbnail
+                        }`}
+                        alt={p.name}
+                        className="w-10 h-10 object-cover rounded-md"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded" />
+                    )}
                   </TableCell>
                   <TruncatedCell maxLength={20}>{p.name}</TruncatedCell>
                   {/* todo truncate to limit expansion*/}
