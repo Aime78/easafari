@@ -1,13 +1,15 @@
-import { Home, Bed, MapPin, Settings, Plus, Store } from "lucide-react";
 import {
   Home,
   Bed,
   MapPin,
+  Settings,
   Plus,
+  Store,
   User,
   Mountain,
   Calendar,
 } from "lucide-react";
+
 import { NavLink } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { useProviderProfile } from "@/features/provider/profile/hooks/useProvider";
