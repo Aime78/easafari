@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { storeKeys } from "../../../lib/marketQueryKeys";
 import { storesApi } from "../services/storesApi";
+import { toastNotification } from "@/components/custom/ToastNotification";
 
 export const useStoreQuery = () => {
-  // Query for fetching stores
   const { data, isLoading, error, isError } = useQuery({
     queryKey: storeKeys.all,
     queryFn: storesApi.getStores,
@@ -22,7 +22,16 @@ export const useCreateStoreMutation = () => {
 
   const createStoreMutation = useMutation({
     mutationFn: (formData: FormData) => storesApi.createStore(formData),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: storeKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: storeKeys.all });
+      toastNotification.success("Success!", "Store created successfully!");
+    },
+    onError: (error) => {
+      toastNotification.error(
+        "Error",
+        error instanceof Error ? error.message : "Failed to create Store"
+      );
+    },
   });
 
   return createStoreMutation;
@@ -34,7 +43,18 @@ export const useUpdateStoreMutation = () => {
   const updateStoreMutation = useMutation({
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
       storesApi.updateStore(id, formData),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: storeKeys.all }),
+
+    onSuccess: (_data, variables) => {
+      const { id } = variables;
+      queryClient.invalidateQueries({ queryKey: storeKeys.singleStore(id) });
+      toastNotification.success("Success!", "Store updated successfully!");
+    },
+    onError: (error) => {
+      toastNotification.error(
+        "Error",
+        error instanceof Error ? error.message : "Failed to update Store"
+      );
+    },
   });
 
   return updateStoreMutation;
@@ -58,7 +78,18 @@ export const useDeleteStoreMutation = () => {
 
   const deleteStoreMutation = useMutation({
     mutationFn: ({ id }: { id: number }) => storesApi.deleteStore(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: storeKeys.all }),
+
+    onSuccess: (_data, variables) => {
+      const { id } = variables;
+      queryClient.invalidateQueries({ queryKey: storeKeys.singleStore(id) });
+      toastNotification.success("Success!", "Store deleted successfully!");
+    },
+    onError: (error) => {
+      toastNotification.error(
+        "Error",
+        error instanceof Error ? error.message : "Failed to delete Store"
+      );
+    },
   });
 
   return deleteStoreMutation;

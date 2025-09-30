@@ -41,8 +41,11 @@ export const useUpdateProductMutation = () => {
   const updateProductMutation = useMutation({
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
       productsApi.updateProduct(id, formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productKeys.all });
+    onSuccess: (_data, variables) => {
+      const { id } = variables;
+      queryClient.invalidateQueries({
+        queryKey: productKeys.singleProduct(id),
+      });
       toastNotification.success("Success!", "Product updated successfully!");
     },
     onError: (error) => {
@@ -62,8 +65,10 @@ export const useDeleteProductMutation = () => {
   const deleteProductMutation = useMutation({
     mutationFn: (id: number) => productsApi.deleteProduct(id),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productKeys.all });
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({
+        queryKey: productKeys.singleProduct(id),
+      });
       toastNotification.success("Success!", "Product deleted successfully!");
     },
     onError: (error) => {

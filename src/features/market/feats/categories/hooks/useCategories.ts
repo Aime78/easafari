@@ -70,8 +70,13 @@ export const useUpdateCategoryMutation = () => {
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
       categoriesApi.updateCategory(id, formData),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    onSuccess: (_data, variables) => {
+      const { id } = variables;
+
+      queryClient.invalidateQueries({
+        queryKey: categoryKeys.singleCategory(id),
+      });
+
       toastNotification.success("Success!", "Category updated successfully!");
     },
     onError: (error) => {
@@ -92,8 +97,13 @@ export const useUpdateSubCategoryMutation = () => {
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
       categoriesApi.updateSubCategory(id, formData),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: subCategoryKeys.all });
+    onSuccess: (_data, variables) => {
+      const { id } = variables;
+
+      queryClient.invalidateQueries({
+        queryKey: subCategoryKeys.singleSubCategory(id),
+      });
+
       toastNotification.success(
         "Success!",
         "SubCategory updated successfully!"
@@ -115,8 +125,12 @@ export const useDeleteCategoryMutation = () => {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: (id: number) => categoriesApi.deleteCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({
+        queryKey: categoryKeys.singleCategory(id),
+      });
+
       toastNotification.success("Success!", "Category deleted successfully!");
     },
     onError: (error) => {
@@ -135,8 +149,12 @@ export const useDeleteSubCategoryMutation = () => {
 
   const deleteSubCategoryMutation = useMutation({
     mutationFn: (id: number) => categoriesApi.deleteSubCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: subCategoryKeys.all });
+
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({
+        queryKey: subCategoryKeys.singleSubCategory(id),
+      });
+
       toastNotification.success(
         "Success!",
         "SubCategory deleted successfully!"
