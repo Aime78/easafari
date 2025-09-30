@@ -4,7 +4,6 @@ import type {
   SubCategory,
 } from "@/features/market/types/marketTypes";
 import { Eye } from "lucide-react";
-import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import {

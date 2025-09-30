@@ -2,7 +2,6 @@ import {
   Home,
   Bed,
   MapPin,
-  Settings,
   Plus,
   Store,
   User,
