@@ -36,6 +36,7 @@ const DeleteCategoryDialog = ({
       await deleteSubCategory(Number(category.id), {
         onSuccess: () => {
           //todo show toast
+          setOpenDelete(false);
 
           console.log("subcat deleted");
         },
@@ -49,6 +50,7 @@ const DeleteCategoryDialog = ({
       await deleteCategory(Number(category.id), {
         onSuccess: () => {
           //todo show toast
+          setOpenDelete(false);
 
           console.log("cat deleted");
         },
@@ -77,7 +79,9 @@ const DeleteCategoryDialog = ({
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={() => setOpenDelete(false)}>
+              Cancel
+            </Button>
           </DialogClose>
           <Button onClick={handleDelete} variant="destructive">
             Yes, delete

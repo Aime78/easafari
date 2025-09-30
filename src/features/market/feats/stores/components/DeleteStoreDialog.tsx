@@ -28,6 +28,7 @@ const DeleteStoreDialog = ({ store }: { store: Store }) => {
       {
         onSuccess: () => {
           //todo show toast
+          setOpenDelete(false);
 
           console.log("Store deleted");
         },
@@ -56,7 +57,9 @@ const DeleteStoreDialog = ({ store }: { store: Store }) => {
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={() => setOpenDelete(false)}>
+              Cancel
+            </Button>
           </DialogClose>
           <Button onClick={handleDelete} variant="destructive">
             Yes, delete

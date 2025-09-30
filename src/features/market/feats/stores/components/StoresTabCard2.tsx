@@ -88,7 +88,7 @@ const StoresTabCard2 = () => {
 
         {/* Table */}
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-100 rounded-t-md">
             <TableRow>
               <TableHead>Store Name</TableHead>
               <TableHead># Products</TableHead>

@@ -26,7 +26,7 @@ const OrdersTabCard = () => {
       <CardContent className="p-4">
         <h2 className="text-lg font-semibold mb-4">Orders</h2>
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-100 rounded-t-md">
             <TableRow>
               <TableHead>Order ID</TableHead>
               <TableHead>User ID</TableHead>

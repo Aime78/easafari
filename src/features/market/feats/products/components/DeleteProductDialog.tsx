@@ -27,6 +27,7 @@ const DeleteProductDialog = ({ product }: { product: Product }) => {
     await deleteProduct(Number(product.id), {
       onSuccess: () => {
         //todo show toast
+        setOpenDelete(false);
 
         console.log("product deleted");
       },
@@ -54,7 +55,9 @@ const DeleteProductDialog = ({ product }: { product: Product }) => {
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={() => setOpenDelete(false)}>
+              Cancel
+            </Button>
           </DialogClose>
           <Button onClick={handleDelete} variant="destructive">
             Yes, delete

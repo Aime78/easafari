@@ -65,9 +65,9 @@ export const useDeleteProductMutation = () => {
   const deleteProductMutation = useMutation({
     mutationFn: (id: number) => productsApi.deleteProduct(id),
 
-    onSuccess: (_data, id) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: productKeys.singleProduct(id),
+        queryKey: productKeys.all,
       });
       toastNotification.success("Success!", "Product deleted successfully!");
     },

@@ -182,7 +182,7 @@ const ProductsTabCard2 = () => {
 
         {/* Products Table */}
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-100 rounded-t-md">
             <TableRow>
               <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>

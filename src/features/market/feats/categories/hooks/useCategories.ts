@@ -126,9 +126,9 @@ export const useDeleteCategoryMutation = () => {
   const deleteCategoryMutation = useMutation({
     mutationFn: (id: number) => categoriesApi.deleteCategory(id),
 
-    onSuccess: (_data, id) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: categoryKeys.singleCategory(id),
+        queryKey: categoryKeys.all,
       });
 
       toastNotification.success("Success!", "Category deleted successfully!");
@@ -150,9 +150,9 @@ export const useDeleteSubCategoryMutation = () => {
   const deleteSubCategoryMutation = useMutation({
     mutationFn: (id: number) => categoriesApi.deleteSubCategory(id),
 
-    onSuccess: (_data, id) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: subCategoryKeys.singleSubCategory(id),
+        queryKey: subCategoryKeys.all,
       });
 
       toastNotification.success(

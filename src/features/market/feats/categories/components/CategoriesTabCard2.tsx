@@ -69,7 +69,7 @@ const CategoriesTabCard2 = () => {
 
         {/* Table */}
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-100 rounded-t-md">
             <TableRow>
               <TableHead>Thumbnail</TableHead>
               <TableHead className="min-w-44">Category</TableHead>
