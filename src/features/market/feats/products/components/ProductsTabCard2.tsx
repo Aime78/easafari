@@ -196,8 +196,58 @@ const ProductsTabCard2 = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isProductsLoading && <h2>loading...</h2>}
+            {isProductsLoading && (
+              <>
+                {[...Array(5)].map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <div className="w-10 h-10 bg-gray-200 rounded-md animate-pulse" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-24" />
+                    </TableCell>
+                    <TableCell className="w-[130px] max-w-[130px]">
+                      <div className="h-6 bg-gray-200 rounded-full animate-pulse w-20" />
+                    </TableCell>
+                    <TableCell className="w-[120px] max-w-[120px]">
+                      <div className="h-6 bg-gray-200 rounded-full animate-pulse w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-12" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                        <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                        <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>
+            )}
+
+            {!isProductsLoading && filteredProducts.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="h-32 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <p className="text-lg font-medium">No products found</p>
+                    <p className="text-sm">
+                      Try adjusting your filters or add a new product
+                    </p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+
             {!isProductsLoading &&
+              filteredProducts.length > 0 &&
               filteredProducts.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell>
@@ -214,7 +264,6 @@ const ProductsTabCard2 = () => {
                     )}
                   </TableCell>
                   <TruncatedCell maxLength={20}>{p.name}</TruncatedCell>
-                  {/* todo truncate to limit expansion*/}
                   <TableCell>
                     {(!isStoresLoading &&
                       stores.find(
@@ -266,11 +315,9 @@ const ProductsTabCard2 = () => {
                   </TableCell>
                   <TableCell>${p.price}</TableCell>
                   <TableCell>{p.discount_price || 0}%</TableCell>
-                  {/*<TableCell>{p.rating} ⭐</TableCell> */}
                   <TableCell className="flex gap-2">
                     <ProductDetailsDialog product={p} />
                     <EditProductDialog product={p} />
-
                     <DeleteProductDialog product={p} />
                   </TableCell>
                 </TableRow>
