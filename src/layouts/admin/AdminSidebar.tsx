@@ -60,13 +60,13 @@ const AdminSidebar = () => {
     : [];
 
   useEffect(() => {
-    if (location.pathname.startsWith("/attractions/")) {
+    if (location.pathname.startsWith("/admin/attractions/")) {
       setIsAttractionsExpanded(true);
     }
-    if (location.pathname.startsWith("/accommodations/")) {
+    if (location.pathname.startsWith("/admin/accommodations/")) {
       setIsAccommodationsExpanded(true);
     }
-    if (location.pathname.startsWith("/experiences/")) {
+    if (location.pathname.startsWith("/admin/experiences/")) {
       setIsExperiencesExpanded(true);
     }
   }, [location.pathname]);
@@ -147,14 +147,14 @@ const AdminSidebar = () => {
 
       <div className="flex flex-col h-[calc(100vh-70px)] text-sm">
         <nav className="flex flex-1 flex-col gap-1 px-2 py-3">
-          <NavLink to={"/"} className={getLinkClassName}>
+          <NavLink to={"/admin"} end className={getLinkClassName}>
             <Home className="w-4 h-4" />
             <span>Overview</span>
           </NavLink>
 
           <div>
             <NavLink
-              to={"/accommodations"}
+              to={"/admin/accommodations"}
               onClick={() =>
                 setIsAccommodationsExpanded(!isAccommodationsExpanded)
               }
@@ -163,7 +163,7 @@ const AdminSidebar = () => {
                   "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
 
                 const isExactlyOnAccommodations =
-                  location.pathname === "/accommodations";
+                  location.pathname === "/admin/accommodations";
 
                 if (isExactlyOnAccommodations) {
                   return `${baseClasses} bg-primary text-white font-medium`;
@@ -198,7 +198,7 @@ const AdminSidebar = () => {
                       return (
                         <NavLink
                           key={category.id}
-                          to={`/accommodations/${slug}`}
+                          to={`/admin/accommodations/${slug}`}
                           className={({ isActive }) =>
                             `px-4 py-2 rounded-lg flex items-center gap-2 ${
                               isActive
@@ -284,14 +284,14 @@ const AdminSidebar = () => {
 
           <div>
             <NavLink
-              to={"/attractions"}
+              to={"/admin/attractions"}
               onClick={() => setIsAttractionsExpanded(!isAttractionsExpanded)}
               className={() => {
                 const baseClasses =
                   "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
 
                 const isExactlyOnAttractions =
-                  location.pathname === "/attractions";
+                  location.pathname === "/admin/attractions";
 
                 if (isExactlyOnAttractions) {
                   return `${baseClasses} bg-primary text-white font-medium`;
@@ -326,7 +326,7 @@ const AdminSidebar = () => {
                       return (
                         <NavLink
                           key={category.id}
-                          to={`/attractions/${slug}`}
+                          to={`/admin/attractions/${slug}`}
                           className={({ isActive }) =>
                             `px-4 py-2 rounded-lg flex items-center gap-2 ${
                               isActive
@@ -407,14 +407,14 @@ const AdminSidebar = () => {
 
           <div>
             <NavLink
-              to={"/experiences"}
+              to={"/admin/experiences"}
               onClick={() => setIsExperiencesExpanded(!isExperiencesExpanded)}
               className={() => {
                 const baseClasses =
                   "w-full px-6 py-2 rounded-lg flex items-center gap-2 text-left";
 
                 const isExactlyOnExperiences =
-                  location.pathname === "/experiences";
+                  location.pathname === "/admin/experiences";
 
                 if (isExactlyOnExperiences) {
                   return `${baseClasses} bg-primary text-white font-medium`;
@@ -449,7 +449,7 @@ const AdminSidebar = () => {
                       return (
                         <NavLink
                           key={category.id}
-                          to={`/experiences/${slug}`}
+                          to={`/admin/experiences/${slug}`}
                           className={({ isActive }) =>
                             `px-4 py-2 rounded-lg flex items-center gap-2 ${
                               isActive
@@ -533,12 +533,12 @@ const AdminSidebar = () => {
             )}
           </div>
 
-          <NavLink to={"/tour-providers"} className={getLinkClassName}>
+          <NavLink to={"/admin/tour-providers"} className={getLinkClassName}>
             <Car className="w-4 h-4" />
             Tour Providers
           </NavLink>
 
-          <NavLink to={"/events"} className={getLinkClassName}>
+          <NavLink to={"/admin/events"} className={getLinkClassName}>
             <Calendar className="w-4 h-4" />
             Events
           </NavLink>

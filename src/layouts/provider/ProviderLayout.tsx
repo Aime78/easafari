@@ -11,7 +11,7 @@ const ProviderLayout = () => {
       <div className="flex flex-col p-4">
         <ProviderHeader />
         <div className="flex-1 bg-white rounded-xl shadow-none ">
-          <ScrollArea className="h-[calc(100vh-120px)]">
+          <ScrollArea className="h-[calc(100vh-70px)] overflow-hidden">
             <div className="px-8 py-6 text-black">
               <Outlet />
               <Toaster />

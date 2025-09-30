@@ -62,19 +62,19 @@ const ProviderAccommodationsPage = lazy(() =>
   }))
 );
 const ProviderExperiencesPage = lazy(() =>
-  import("@/features/admin/experience").then((module) => ({
-    default: module.ExperiencesPage,
+  import("@/features/provider/experience").then((module) => ({
+    default: module.ProviderExperiencesPage,
   }))
 );
 const ProviderSettingsPage = lazy(() =>
-  import("@/features/provider").then((module) => ({
+  import("@/features/provider/profile").then((module) => ({
     default: module.ProviderSettingsPage,
   }))
 );
 
 const router = createBrowserRouter([
   {
-    path: "admin/login",
+    path: "/admin/login",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <LoginPage />
@@ -82,7 +82,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "register",
+    path: "/register",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <ProviderRegisterPage />
@@ -90,7 +90,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "login",
+    path: "/login",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <ProviderLoginPage />
@@ -241,7 +241,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "settings",
+        path: "profile",
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <ProviderSettingsPage />

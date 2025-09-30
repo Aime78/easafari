@@ -5,21 +5,21 @@ import type {
 } from "../types/accommodationTypes";
 
 export const accommodationService = {
-  getAll: (): Promise<Accommodation[]> => api.get("/accommodations"),
+  getAll: (): Promise<Accommodation[]> => api.get("/admin/accommodations"),
   getByCategory: (categoryId: number): Promise<Accommodation[]> =>
-    api.get(`/accommodations?category_id=${categoryId}`),
+    api.get(`/admin/accommodations?category_id=${categoryId}`),
   getById: (id: string): Promise<Accommodation> =>
-    api.get(`/accommodations/${id}`),
+    api.get(`/admin/accommodations/${id}`),
   getCategories: () =>
-    api.get<AccommodationCategory[]>("/accommodations/categories"),
+    api.get<AccommodationCategory[]>("/admin/accommodations/categories"),
   createCategory: (data: { name: string }) =>
-    api.post<AccommodationCategory>("/accommodations/categories", data),
+    api.post<AccommodationCategory>("/admin/accommodations/categories", data),
   search: (query: string) =>
     api.get<Accommodation[]>(
-      `/accommodations/all/search?query=${encodeURIComponent(query)}`
+      `/admin/accommodations/all/search?query=${encodeURIComponent(query)}`
     ),
   create: (data: FormData) =>
-    api.post<Accommodation>("/accommodations", data, {
+    api.post<Accommodation>("/admin/accommodations", data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

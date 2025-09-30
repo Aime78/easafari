@@ -53,4 +53,36 @@ export const queryKeys = {
       lists: () => [...queryKeys.categories.experiences.all, "list"] as const,
     },
   },
+
+  // Provider
+  provider: {
+    all: ["provider"] as const,
+    profile: () => [...queryKeys.provider.all, "profile"] as const,
+    services: () => [...queryKeys.provider.all, "services"] as const,
+    details: () => [...queryKeys.provider.all, "detail"] as const,
+    detail: (id: string) => [...queryKeys.provider.details(), id] as const,
+    experiences: {
+      all: ["provider", "experiences"] as const,
+      lists: () => [...queryKeys.provider.experiences.all, "list"] as const,
+      list: (filters: string) =>
+        [...queryKeys.provider.experiences.lists(), { filters }] as const,
+      details: () => [...queryKeys.provider.experiences.all, "detail"] as const,
+      detail: (id: string) =>
+        [...queryKeys.provider.experiences.details(), id] as const,
+      search: (query: string) =>
+        [...queryKeys.provider.experiences.all, "search", query] as const,
+    },
+    accommodations: {
+      all: ["provider", "accommodations"] as const,
+      lists: () => [...queryKeys.provider.accommodations.all, "list"] as const,
+      list: (filters: string) =>
+        [...queryKeys.provider.accommodations.lists(), { filters }] as const,
+      details: () =>
+        [...queryKeys.provider.accommodations.all, "detail"] as const,
+      detail: (id: string) =>
+        [...queryKeys.provider.accommodations.details(), id] as const,
+      search: (query: string) =>
+        [...queryKeys.provider.accommodations.all, "search", query] as const,
+    },
+  },
 };
