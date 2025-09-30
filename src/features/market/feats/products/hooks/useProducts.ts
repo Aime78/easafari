@@ -4,14 +4,23 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productKeys } from "../../../lib/marketQueryKeys";
 import { productsApi } from "../services/productApi";
+import { toastNotification } from "@/components/custom/ToastNotification";
 
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
   const createProductMutation = useMutation({
     mutationFn: (formData: FormData) => productsApi.createProduct(formData),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: productKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
+      toastNotification.success("Success!", "Product created successfully!");
+    },
+    onError: (error) => {
+      toastNotification.error(
+        "Error",
+        error instanceof Error ? error.message : "Failed to create Product"
+      );
+    },
   });
 
   return createProductMutation;
@@ -32,8 +41,16 @@ export const useUpdateProductMutation = () => {
   const updateProductMutation = useMutation({
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
       productsApi.updateProduct(id, formData),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: productKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
+      toastNotification.success("Success!", "Product updated successfully!");
+    },
+    onError: (error) => {
+      toastNotification.error(
+        "Error",
+        error instanceof Error ? error.message : "Failed to updated Product"
+      );
+    },
   });
 
   return updateProductMutation;
@@ -44,8 +61,17 @@ export const useDeleteProductMutation = () => {
 
   const deleteProductMutation = useMutation({
     mutationFn: (id: number) => productsApi.deleteProduct(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: productKeys.all }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
+      toastNotification.success("Success!", "Product deleted successfully!");
+    },
+    onError: (error) => {
+      toastNotification.error(
+        "Error",
+        error instanceof Error ? error.message : "Failed to deleted Product"
+      );
+    },
   });
 
   return deleteProductMutation;
