@@ -12,52 +12,69 @@ import MarketPage from "@/features/market/pages/MarketPage";
 const LoginPage = lazy(() =>
   import("@/features/auth").then((module) => ({ default: module.LoginPage }))
 );
-const RegisterPage = lazy(() =>
-  import("@/features/auth").then((module) => ({ default: module.RegisterPage }))
-);
+// const RegisterPage = lazy(() =>
+//   import("@/features/auth").then((module) => ({ default: module.RegisterPage }))
+// );
 
 const AdminAttractionsPage = lazy(() =>
-  import("@/features/attraction").then((module) => ({
+  import("@/features/admin/attraction").then((module) => ({
     default: module.AttractionsPage,
   }))
 );
 const AdminAccommodationsPage = lazy(() =>
-  import("@/features/accommodation").then((module) => ({
+  import("@/features/admin/accommodation").then((module) => ({
     default: module.AccommodationsPage,
   }))
 );
 const AdminExperiencesPage = lazy(() =>
-  import("@/features/experience").then((module) => ({
+  import("@/features/admin/experience").then((module) => ({
     default: module.ExperiencesPage,
   }))
 );
 
 // Provider Pages - For now, using the same components as admin
 // These will be replaced with provider-specific components later
+const ProviderRegisterPage = lazy(() =>
+  import("@/features/provider/auth").then((module) => ({
+    default: module.ProviderRegisterPage,
+  }))
+);
+
+const ProviderLoginPage = lazy(() =>
+  import("@/features/provider/auth").then((module) => ({
+    default: module.ProviderLoginPage,
+  }))
+);
+
 const ProviderDashboardPage = lazy(() =>
-  import("@/features/attraction").then((module) => ({
+  import("@/features/admin/attraction").then((module) => ({
     default: module.AttractionsPage, // Temporary - replace with actual dashboard
   }))
 );
 const ProviderAttractionsPage = lazy(() =>
-  import("@/features/attraction").then((module) => ({
+  import("@/features/admin/attraction").then((module) => ({
     default: module.AttractionsPage,
   }))
 );
 const ProviderAccommodationsPage = lazy(() =>
-  import("@/features/accommodation").then((module) => ({
+  import("@/features/admin/accommodation").then((module) => ({
     default: module.AccommodationsPage,
   }))
 );
 const ProviderExperiencesPage = lazy(() =>
-  import("@/features/experience").then((module) => ({
+  import("@/features/admin/experience").then((module) => ({
     default: module.ExperiencesPage,
+  }))
+);
+const ProviderSettingsPage = lazy(() =>
+  import("@/features/provider").then((module) => ({
+    default: module.ProviderSettingsPage,
   }))
 );
 
 const router = createBrowserRouter([
   {
-    path: "login",
+    path: "admin/login",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <LoginPage />
@@ -68,7 +85,15 @@ const router = createBrowserRouter([
     path: "register",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
-        <RegisterPage />
+        <ProviderRegisterPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "login",
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProviderLoginPage />
       </Suspense>
     ),
   },
@@ -141,9 +166,9 @@ const router = createBrowserRouter([
   {
     path: "/provider",
     element: (
-      <ProtectedRoute allowedRoles={["provider"]}>
-        <ProviderLayout />
-      </ProtectedRoute>
+      <ProviderLayout />
+      // <ProtectedRoute allowedRoles={["service_provider"]}>
+      // </ProtectedRoute>
     ),
     children: [
       {
@@ -212,6 +237,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <ProviderExperiencesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "settings",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProviderSettingsPage />
           </Suspense>
         ),
       },

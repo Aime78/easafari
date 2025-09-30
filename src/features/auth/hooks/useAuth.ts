@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { useAuthContext } from "@/contexts/useAuthContext";
 import { authService } from "../services/authService";
 import type {
   LoginCredentials,
@@ -32,4 +32,4 @@ export const useLogout = () => {
   };
 };
 
-export { useAuthContext as useAuth } from "@/contexts/AuthContext";
+export { useAuthContext as useAuth } from "@/contexts/useAuthContext";
