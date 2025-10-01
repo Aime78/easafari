@@ -7,6 +7,7 @@ import { lazy, Suspense } from "react";
 import { AdminLayout } from "@/layouts/admin";
 import { ProviderLayout } from "@/layouts/provider";
 import ProtectedRoute from "@/components/custom/ProtectedRoute";
+import MarketPage from "@/features/market/pages/MarketPage";
 
 const LoginPage = lazy(() =>
   import("@/features/auth").then((module) => ({ default: module.LoginPage }))
@@ -179,6 +180,15 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <ProviderDashboardPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "market",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <MarketPage />
+            {/*  <TestMarketApi />*/}
           </Suspense>
         ),
       },
