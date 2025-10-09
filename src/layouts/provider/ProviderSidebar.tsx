@@ -3,10 +3,12 @@ import {
   Bed,
   MapPin,
   Plus,
+  Store,
   User,
   Mountain,
   Calendar,
 } from "lucide-react";
+
 import { NavLink } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { useProviderProfile } from "@/features/provider/profile/hooks/useProvider";
@@ -88,6 +90,11 @@ const ProviderSidebar = () => {
               </NavLink>
             );
           })}
+
+          <NavLink to={"/provider/market"} className={getLinkClassName}>
+            <Store className="w-4 h-4" />
+            <span>Market</span>
+          </NavLink>
 
           <NavLink to={"/provider/bookings"} className={getLinkClassName}>
             <Plus className="w-4 h-4" />
