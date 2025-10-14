@@ -45,6 +45,7 @@ import type {
 } from "../types/accommodationTypes";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import AddProviderAccommodationDialog from "./AddProviderAccommodationDialog";
+import AddProviderAccommodationRoomDialog from "./AddProviderAccommodationRoomDialog";
 import DeleteProviderAccommodationDialog from "./DeleteProviderAccommodationDialog";
 
 interface ProviderAccommodationTableProps {
@@ -223,6 +224,12 @@ const ProviderAccommodationTable = ({
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
+          <AddProviderAccommodationRoomDialog>
+            <Button variant="outline" size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Room
+            </Button>
+          </AddProviderAccommodationRoomDialog>
           <AddProviderAccommodationDialog>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />

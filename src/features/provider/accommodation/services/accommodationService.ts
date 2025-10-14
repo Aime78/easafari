@@ -41,4 +41,10 @@ export const providerAccommodationService = {
       },
     }),
   delete: (id: string) => api.delete(`/provider/accommodations/${id}`),
+  createRoom: (data: FormData) =>
+    api.post("/provider/rooms", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
 };
