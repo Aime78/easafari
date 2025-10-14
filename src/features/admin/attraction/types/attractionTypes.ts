@@ -34,6 +34,11 @@ export interface CreateAttractionData {
   images?: FileList;
 }
 
+export interface CreateAttractionCategoryData {
+  name: string;
+  image?: File;
+}
+
 export interface UpdateAttractionData {
   name?: string;
   description?: string;

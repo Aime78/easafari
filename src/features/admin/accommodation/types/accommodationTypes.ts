@@ -21,7 +21,7 @@ export interface AccommodationCategory {
   id: number;
   name: string;
   code?: string | null;
-  image?: string | null;
+  thumbnail?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -38,6 +38,11 @@ export interface CreateAccommodationData {
   accommodation_category_id: string;
   thumbnail?: File;
   images?: FileList;
+}
+
+export interface CreateAccommodationCategoryData {
+  name: string;
+  image?: File;
 }
 
 export interface AccommodationSearchParams {

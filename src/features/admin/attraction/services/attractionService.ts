@@ -9,8 +9,18 @@ export const attractionService = {
     api.get(`/admin/attractions/${id}`),
   getCategories: () =>
     api.get<AttractionCategory[]>("/admin/attractions/categories"),
-  createCategory: (data: { name: string }) =>
-    api.post<AttractionCategory>("/admin/attractions/categories", data),
+  createCategory: (data: FormData | { name: string }) =>
+    api.post<AttractionCategory>(
+      "/admin/attractions/categories",
+      data,
+      data instanceof FormData
+        ? {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        : undefined
+    ),
   search: (query: string) =>
     api.get<Attraction[]>(
       `/admin/attractions/all/search?query=${encodeURIComponent(query)}`

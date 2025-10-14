@@ -59,7 +59,7 @@ export const useAttractionCategories = () => {
   const createCategoryMutation = useMutation<
     AttractionCategory,
     ApiErrorResponse,
-    { name: string }
+    FormData | { name: string }
   >({
     mutationFn: attractionService.createCategory,
     onSuccess: () => {

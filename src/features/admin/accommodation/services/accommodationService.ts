@@ -12,8 +12,18 @@ export const accommodationService = {
     api.get(`/admin/accommodations/${id}`),
   getCategories: () =>
     api.get<AccommodationCategory[]>("/admin/accommodations/categories"),
-  createCategory: (data: { name: string }) =>
-    api.post<AccommodationCategory>("/admin/accommodations/categories", data),
+  createCategory: (data: FormData | { name: string }) =>
+    api.post<AccommodationCategory>(
+      "/admin/accommodations/categories",
+      data,
+      data instanceof FormData
+        ? {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        : undefined
+    ),
   search: (query: string) =>
     api.get<Accommodation[]>(
       `/admin/accommodations/all/search?query=${encodeURIComponent(query)}`

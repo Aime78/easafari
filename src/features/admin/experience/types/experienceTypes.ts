@@ -23,9 +23,14 @@ export interface ExperienceCategory {
   id: number;
   name: string;
   code?: string | null;
-  image?: string | null;
+  thumbnail?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface CreateExperienceCategoryData {
+  name: string;
+  thumbnail?: File;
 }
 
 export interface CreateExperienceData {

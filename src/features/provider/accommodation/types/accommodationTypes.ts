@@ -22,7 +22,7 @@ export interface AccommodationCategory {
   id: number;
   name: string;
   code?: string | null;
-  image?: string | null;
+  thumbnail?: string | null;
   created_at: string;
   updated_at: string;
 }
