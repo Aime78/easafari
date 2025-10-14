@@ -10,7 +10,7 @@ export interface Experience {
   rating: number;
   thumbnail: string;
   images: string[] | null;
-  included: string;
+  whats_included: string;
   excluded: string;
   experience_category_id: number;
   attraction_id?: number; // Added for attraction association
@@ -47,7 +47,7 @@ export interface CreateExperienceData {
   latitude: string;
   longitude: string;
   rating: string;
-  included: string;
+  whats_included: string;
   excluded: string;
   experience_category_id: string;
   attraction_id?: string; // Added for attraction association

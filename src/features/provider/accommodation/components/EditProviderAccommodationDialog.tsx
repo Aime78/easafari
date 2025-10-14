@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,77 +29,121 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { providerExperienceService } from "../services/experienceService";
-import { createProviderExperienceSchema } from "../schemas/providerExperienceSchemas";
+import { providerAccommodationService } from "../services/accommodationService";
+import { createProviderAccommodationSchema } from "../schemas/providerAccommodationSchemas";
 import {
-  useProviderExperienceCategories,
+  useProviderAccommodationCategories,
   useProviderAttractions,
-} from "../hooks/useProviderExperience";
+} from "../hooks/useProviderAccommodation";
 import { toastNotification } from "@/components/custom/ToastNotification";
+import { getImageUrl } from "@/lib/imageUtils";
+import type { Accommodation } from "../types/accommodationTypes";
 
-type AddProviderExperienceForm = z.infer<typeof createProviderExperienceSchema>;
+type EditProviderAccommodationForm = z.infer<
+  typeof createProviderAccommodationSchema
+>;
 
-interface AddProviderExperienceDialogProps {
-  children: React.ReactNode;
+interface EditProviderAccommodationDialogProps {
+  children?: React.ReactNode;
+  accommodation: Accommodation;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export const AddProviderExperienceDialog = ({
+export const EditProviderAccommodationDialog = ({
   children,
+  accommodation,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange,
   onSuccess,
-}: AddProviderExperienceDialogProps) => {
-  const [open, setOpen] = useState(false);
+}: EditProviderAccommodationDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { categories, loading: categoriesLoading } =
-    useProviderExperienceCategories();
+    useProviderAccommodationCategories();
   const { data: attractions = [], isLoading: attractionsLoading } =
     useProviderAttractions();
-  const form = useForm<AddProviderExperienceForm>({
-    resolver: zodResolver(createProviderExperienceSchema),
+
+  const form = useForm<EditProviderAccommodationForm>({
+    resolver: zodResolver(createProviderAccommodationSchema),
     defaultValues: {
       name: "",
       description: "",
       address: "",
       price: "",
-      duration: "",
-      whats_included: "",
-      experience_category_id: "",
+      amenities: "",
+      accommodation_category_id: "",
       attraction_id: "",
     },
   });
 
-  const createExperienceMutation = useMutation({
+  // Populate form with accommodation data when dialog opens
+  useEffect(() => {
+    if (open && accommodation) {
+      form.reset({
+        name: accommodation.name,
+        description: accommodation.description,
+        address: accommodation.address,
+        price: accommodation.price.toString(),
+        amenities: accommodation.amenities,
+        accommodation_category_id:
+          accommodation.accommodation_category_id.toString(),
+        attraction_id: accommodation.attraction_id?.toString() || "",
+      });
+
+      // Set existing thumbnail preview
+      if (accommodation.thumbnail) {
+        setThumbnailPreview(getImageUrl(accommodation.thumbnail));
+      } else {
+        setThumbnailPreview(null);
+      }
+      setThumbnailFile(null);
+    }
+  }, [open, accommodation, form]);
+
+  const updateAccommodationMutation = useMutation({
     mutationFn: async (
-      data: AddProviderExperienceForm & { thumbnail?: File }
+      data: EditProviderAccommodationForm & { thumbnail?: File }
     ) => {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("description", data.description);
       formData.append("address", data.address);
       formData.append("price", data.price);
-      formData.append("duration", data.duration);
-      formData.append("whats_included", data.whats_included);
-      formData.append("experience_category_id", data.experience_category_id);
+      formData.append("amenities", data.amenities);
+      formData.append(
+        "accommodation_category_id",
+        data.accommodation_category_id
+      );
       formData.append("attractions", JSON.stringify([data.attraction_id]));
       if (data.thumbnail) formData.append("thumbnail", data.thumbnail);
-      return providerExperienceService.create(formData);
+      return providerAccommodationService.update(
+        accommodation.id.toString(),
+        formData
+      );
     },
     onSuccess: () => {
-      toastNotification.success("Success!", "Experience created successfully!");
-      queryClient.invalidateQueries({ queryKey: ["provider", "experiences"] });
-      form.reset();
-      setThumbnailFile(null);
-      setThumbnailPreview(null);
-      setOpen(false);
+      toastNotification.success(
+        "Success!",
+        "Accommodation updated successfully!"
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["provider", "accommodations"],
+      });
+      handleOpenChange(false);
       onSuccess?.();
     },
     onError: (error) => {
       toastNotification.error(
         "Error",
-        error instanceof Error ? error.message : "Failed to create experience"
+        error instanceof Error
+          ? error.message
+          : "Failed to update accommodation"
       );
     },
   });
@@ -114,19 +158,32 @@ export const AddProviderExperienceDialog = ({
     }
   };
 
-  const onSubmit = (data: AddProviderExperienceForm) => {
-    createExperienceMutation.mutate({
+  const onSubmit = (data: EditProviderAccommodationForm) => {
+    updateAccommodationMutation.mutate({
       ...data,
       thumbnail: thumbnailFile || undefined,
     });
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (externalOnOpenChange) {
+      externalOnOpenChange(newOpen);
+    } else {
+      setInternalOpen(newOpen);
+    }
+    if (!newOpen) {
+      // Reset form and preview when closing
+      setThumbnailFile(null);
+      setThumbnailPreview(null);
+    }
+  };
+
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
+      {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
       <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle>New Experience</AlertDialogTitle>
+          <AlertDialogTitle>Edit Accommodation</AlertDialogTitle>
         </AlertDialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -137,7 +194,7 @@ export const AddProviderExperienceDialog = ({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter experience name" {...field} />
+                    <Input placeholder="Enter accommodation name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -161,15 +218,12 @@ export const AddProviderExperienceDialog = ({
               )}
             />
             <FormField
-              name="experience_category_id"
+              name="accommodation_category_id"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a category" />
@@ -199,10 +253,7 @@ export const AddProviderExperienceDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Attraction</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select an attraction" />
@@ -242,48 +293,34 @@ export const AddProviderExperienceDialog = ({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                name="price"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="150"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="duration"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Duration</FormLabel>
-                    <FormControl>
-                      <Input placeholder="2 hours" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
             <FormField
-              name="whats_included"
+              name="price"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What's Included</FormLabel>
+                  <FormLabel>Price per night</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Guide, Equipment, Transport"
+                      type="number"
+                      step="0.01"
+                      placeholder="150"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="amenities"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amenities</FormLabel>
+                  <FormControl>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      placeholder="WiFi, Air Conditioning, Pool, Restaurant..."
                       {...field}
                     />
                   </FormControl>
@@ -299,16 +336,18 @@ export const AddProviderExperienceDialog = ({
                   variant="outline"
                   onClick={() =>
                     document
-                      .getElementById("provider-experience-thumbnail-upload")
+                      .getElementById(
+                        "edit-provider-accommodation-thumbnail-upload"
+                      )
                       ?.click()
                   }
                   className="flex items-center space-x-2 w-full"
                 >
                   <Upload className="h-4 w-4" />
-                  <span>Upload Thumbnail</span>
+                  <span>Change Thumbnail</span>
                 </Button>
                 <input
-                  id="provider-experience-thumbnail-upload"
+                  id="edit-provider-accommodation-thumbnail-upload"
                   type="file"
                   accept="image/*"
                   onChange={handleThumbnailChange}
@@ -331,19 +370,19 @@ export const AddProviderExperienceDialog = ({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
-                disabled={createExperienceMutation.isPending}
+                onClick={() => handleOpenChange(false)}
+                disabled={updateAccommodationMutation.isPending}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={createExperienceMutation.isPending}
+                disabled={updateAccommodationMutation.isPending}
               >
-                {createExperienceMutation.isPending && (
+                {updateAccommodationMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Create Experience
+                Update Accommodation
               </Button>
             </div>
           </form>
@@ -353,4 +392,4 @@ export const AddProviderExperienceDialog = ({
   );
 };
 
-export default AddProviderExperienceDialog;
+export default EditProviderAccommodationDialog;

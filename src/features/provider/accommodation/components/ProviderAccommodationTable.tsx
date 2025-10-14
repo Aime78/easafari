@@ -44,9 +44,11 @@ import type {
   AccommodationCategory,
 } from "../types/accommodationTypes";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { getImageUrl, getFallbackImageUrl } from "@/lib/imageUtils";
 import AddProviderAccommodationDialog from "./AddProviderAccommodationDialog";
 import AddProviderAccommodationRoomDialog from "./AddProviderAccommodationRoomDialog";
 import DeleteProviderAccommodationDialog from "./DeleteProviderAccommodationDialog";
+import EditProviderAccommodationDialog from "./EditProviderAccommodationDialog";
 
 interface ProviderAccommodationTableProps {
   accommodations: Accommodation[];
@@ -62,6 +64,9 @@ const ProviderAccommodationTable = ({
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accommodationToDelete, setAccommodationToDelete] =
+    useState<Accommodation | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [accommodationToEdit, setAccommodationToEdit] =
     useState<Accommodation | null>(null);
 
   const getFilteredAccommodations = () => {
@@ -111,6 +116,16 @@ const ProviderAccommodationTable = ({
   const handleDeleteSuccess = () => {
     setDeleteDialogOpen(false);
     setAccommodationToDelete(null);
+  };
+
+  const handleEditClick = (accommodation: Accommodation) => {
+    setAccommodationToEdit(accommodation);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setEditDialogOpen(false);
+    setAccommodationToEdit(null);
   };
 
   const getPageTitle = () => {
@@ -264,13 +279,13 @@ const ProviderAccommodationTable = ({
                     <TableCell>
                       {acc.thumbnail ? (
                         <img
-                          src={`https://easafari.tanduka.com/${acc.thumbnail}`}
+                          src={getImageUrl(acc.thumbnail)}
                           alt={acc.name}
                           className="w-12 h-12 object-cover rounded-md"
                         />
                       ) : (
                         <img
-                          src="/image_placeholder.png"
+                          src={getFallbackImageUrl()}
                           alt={acc.name}
                           className="w-12 h-12 object-cover rounded-md"
                         />
@@ -317,7 +332,9 @@ const ProviderAccommodationTable = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEditClick(acc)}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
@@ -422,6 +439,16 @@ const ProviderAccommodationTable = ({
           onOpenChange={setDeleteDialogOpen}
           accommodation={accommodationToDelete}
           onSuccess={handleDeleteSuccess}
+        />
+      )}
+
+      {/* Edit Dialog */}
+      {accommodationToEdit && (
+        <EditProviderAccommodationDialog
+          accommodation={accommodationToEdit}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={handleEditSuccess}
         />
       )}
     </Card>
