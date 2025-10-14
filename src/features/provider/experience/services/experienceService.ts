@@ -31,7 +31,7 @@ export const providerExperienceService = {
       },
     }),
   update: (id: string, data: FormData) =>
-    api.put<Experience>(`/provider/experiences/${id}`, data, {
+    api.post<Experience>(`/provider/experiences/${id}`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
