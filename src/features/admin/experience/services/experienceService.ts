@@ -9,8 +9,18 @@ export const experienceService = {
     api.get(`/admin/experiences/${id}`),
   getCategories: () =>
     api.get<ExperienceCategory[]>("/admin/experiences/categories"),
-  createCategory: (data: { name: string }) =>
-    api.post<ExperienceCategory>("/admin/experiences/categories", data),
+  createCategory: (data: FormData | { name: string }) =>
+    api.post<ExperienceCategory>(
+      "/admin/experiences/categories",
+      data,
+      data instanceof FormData
+        ? {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        : undefined
+    ),
   search: (query: string) =>
     api.get<Experience[]>(
       `/admin/experiences/all/search?query=${encodeURIComponent(query)}`

@@ -19,6 +19,7 @@ import { useExperienceCategories } from "@/features/admin/experience";
 import { categoryToSlug, getCategoryIcon } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getImageUrl } from "@/lib/imageUtils";
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -31,10 +32,16 @@ const AdminSidebar = () => {
     useState(false);
   const [showExperienceAddForm, setShowExperienceAddForm] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [newAttractionCategoryImage, setNewAttractionCategoryImage] =
+    useState<File | null>(null);
   const [newAccommodationCategoryName, setNewAccommodationCategoryName] =
     useState("");
+  const [newAccommodationCategoryImage, setNewAccommodationCategoryImage] =
+    useState<File | null>(null);
   const [newExperienceCategoryName, setNewExperienceCategoryName] =
     useState("");
+  const [newExperienceCategoryImage, setNewExperienceCategoryImage] =
+    useState<File | null>(null);
   const { categories, loading, createCategory, isCreating } =
     useAttractionCategories();
   const {
@@ -73,58 +80,73 @@ const AdminSidebar = () => {
 
   const handleAddCategory = () => {
     if (newCategoryName.trim()) {
-      createCategory(
-        { name: newCategoryName.trim() },
-        {
-          onSuccess: () => {
-            setNewCategoryName("");
-            setShowAddForm(false);
-          },
-        }
-      );
+      const formData = new FormData();
+      formData.append("name", newCategoryName.trim());
+      if (newAttractionCategoryImage) {
+        formData.append("image", newAttractionCategoryImage);
+      }
+
+      createCategory(formData, {
+        onSuccess: () => {
+          setNewCategoryName("");
+          setNewAttractionCategoryImage(null);
+          setShowAddForm(false);
+        },
+      });
     }
   };
 
   const handleCancelAdd = () => {
     setNewCategoryName("");
+    setNewAttractionCategoryImage(null);
     setShowAddForm(false);
   };
 
   const handleAddAccommodationCategory = () => {
     if (newAccommodationCategoryName.trim()) {
-      createAccommodationCategory(
-        { name: newAccommodationCategoryName.trim() },
-        {
-          onSuccess: () => {
-            setNewAccommodationCategoryName("");
-            setShowAccommodationAddForm(false);
-          },
-        }
-      );
+      const formData = new FormData();
+      formData.append("name", newAccommodationCategoryName.trim());
+      if (newAccommodationCategoryImage) {
+        formData.append("thumbnail", newAccommodationCategoryImage);
+      }
+
+      createAccommodationCategory(formData, {
+        onSuccess: () => {
+          setNewAccommodationCategoryName("");
+          setNewAccommodationCategoryImage(null);
+          setShowAccommodationAddForm(false);
+        },
+      });
     }
   };
 
   const handleCancelAccommodationAdd = () => {
     setNewAccommodationCategoryName("");
+    setNewAccommodationCategoryImage(null);
     setShowAccommodationAddForm(false);
   };
 
   const handleAddExperienceCategory = () => {
     if (newExperienceCategoryName.trim()) {
-      createExperienceCategory(
-        { name: newExperienceCategoryName.trim() },
-        {
-          onSuccess: () => {
-            setNewExperienceCategoryName("");
-            setShowExperienceAddForm(false);
-          },
-        }
-      );
+      const formData = new FormData();
+      formData.append("name", newExperienceCategoryName.trim());
+      if (newExperienceCategoryImage) {
+        formData.append("thumbnail", newExperienceCategoryImage);
+      }
+
+      createExperienceCategory(formData, {
+        onSuccess: () => {
+          setNewExperienceCategoryName("");
+          setNewExperienceCategoryImage(null);
+          setShowExperienceAddForm(false);
+        },
+      });
     }
   };
 
   const handleCancelExperienceAdd = () => {
     setNewExperienceCategoryName("");
+    setNewExperienceCategoryImage(null);
     setShowExperienceAddForm(false);
   };
 
@@ -207,7 +229,15 @@ const AdminSidebar = () => {
                             }`
                           }
                         >
-                          <IconComponent className="w-4 h-4" />
+                          {category.thumbnail ? (
+                            <img
+                              src={getImageUrl(category.thumbnail)}
+                              alt={category.name}
+                              className="w-4 h-4 object-cover rounded"
+                            />
+                          ) : (
+                            <IconComponent className="w-4 h-4" />
+                          )}
                           <span>{category.name}</span>
                         </NavLink>
                       );
@@ -236,6 +266,27 @@ const AdminSidebar = () => {
                               }
                             }}
                           />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs text-gray-600 font-medium">
+                            Image
+                          </label>
+                          <Input
+                            type="file"
+                            onChange={(e) =>
+                              setNewAccommodationCategoryImage(
+                                e.target.files?.[0] || null
+                              )
+                            }
+                            accept="image/*"
+                            className="h-7 text-xs"
+                            disabled={isCreatingAccommodation}
+                          />
+                          {newAccommodationCategoryImage && (
+                            <div className="text-xs text-gray-500">
+                              Selected: {newAccommodationCategoryImage.name}
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-1">
                           <Button
@@ -335,7 +386,15 @@ const AdminSidebar = () => {
                             }`
                           }
                         >
-                          <IconComponent className="w-4 h-4" />
+                          {category.image ? (
+                            <img
+                              src={getImageUrl(category.image)}
+                              alt={category.name}
+                              className="w-4 h-4 object-cover rounded"
+                            />
+                          ) : (
+                            <IconComponent className="w-4 h-4" />
+                          )}
                           <span>{category.name}</span>
                         </NavLink>
                       );
@@ -362,6 +421,27 @@ const AdminSidebar = () => {
                               }
                             }}
                           />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs text-gray-600 font-medium">
+                            Image
+                          </label>
+                          <Input
+                            type="file"
+                            onChange={(e) =>
+                              setNewAttractionCategoryImage(
+                                e.target.files?.[0] || null
+                              )
+                            }
+                            accept="image/*"
+                            className="h-7 text-xs"
+                            disabled={isCreating}
+                          />
+                          {newAttractionCategoryImage && (
+                            <div className="text-xs text-gray-500">
+                              Selected: {newAttractionCategoryImage.name}
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-1">
                           <Button
@@ -458,7 +538,15 @@ const AdminSidebar = () => {
                             }`
                           }
                         >
-                          <IconComponent className="w-4 h-4" />
+                          {category.thumbnail ? (
+                            <img
+                              src={getImageUrl(category.thumbnail)}
+                              alt={category.name}
+                              className="w-4 h-4 object-cover rounded"
+                            />
+                          ) : (
+                            <IconComponent className="w-4 h-4" />
+                          )}
                           <span>{category.name}</span>
                         </NavLink>
                       );
@@ -487,6 +575,27 @@ const AdminSidebar = () => {
                               }
                             }}
                           />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs text-gray-600 font-medium">
+                            Image
+                          </label>
+                          <Input
+                            type="file"
+                            onChange={(e) =>
+                              setNewExperienceCategoryImage(
+                                e.target.files?.[0] || null
+                              )
+                            }
+                            accept="image/*"
+                            className="h-7 text-xs"
+                            disabled={isCreatingExperience}
+                          />
+                          {newExperienceCategoryImage && (
+                            <div className="text-xs text-gray-500">
+                              Selected: {newExperienceCategoryImage.name}
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-1">
                           <Button

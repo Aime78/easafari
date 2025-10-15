@@ -57,7 +57,7 @@ export const useExperienceCategories = () => {
   const createCategoryMutation = useMutation<
     ExperienceCategory,
     ApiErrorResponse,
-    { name: string }
+    FormData | { name: string }
   >({
     mutationFn: experienceService.createCategory,
     onSuccess: () => {
