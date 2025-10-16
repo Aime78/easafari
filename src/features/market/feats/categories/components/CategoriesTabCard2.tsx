@@ -18,6 +18,7 @@ import { useCategoryQuery } from "../hooks/useCategories";
 import AddEditCategoryDialogZod2 from "./AddEditCategoryDialogZod2";
 import DeleteCategoryDialog from "./DeleteCategoryDialog";
 import CategoryDetailsDialog from "./CategoryDetailsDialog";
+import { getImageUrl } from "@/features/market/utils/imageUrls";
 
 const CategoriesTabCard2 = () => {
   const { myCategories, isLoading } = useCategoryQuery();
@@ -127,9 +128,7 @@ const CategoriesTabCard2 = () => {
                     <TableCell>
                       {cat.image ? (
                         <img
-                          src={`${import.meta.env.VITE_API_IMAGE_BASE_URL}/${
-                            cat.image
-                          }`}
+                          src={`${getImageUrl(cat.image)}`}
                           alt={cat.name}
                           className="w-10 h-10 object-cover rounded-md"
                         />

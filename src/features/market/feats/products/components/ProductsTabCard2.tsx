@@ -35,6 +35,7 @@ import {
 import EditProductDialog from "./EditProductDialog";
 import DeleteProductDialog from "./DeleteProductDialog";
 import ProductDetailsDialog from "./ProductDetailsDialog";
+import { getImageUrl } from "@/features/market/utils/imageUrls";
 
 const ProductsTabCard2 = () => {
   const { products, isLoading: isProductsLoading } = useProductsQuery();
@@ -253,9 +254,7 @@ const ProductsTabCard2 = () => {
                   <TableCell>
                     {p.thumbnail ? (
                       <img
-                        src={`${import.meta.env.VITE_API_IMAGE_BASE_URL}/${
-                          p.thumbnail
-                        }`}
+                        src={`${getImageUrl(p.thumbnail)}`}
                         alt={p.name}
                         className="w-10 h-10 object-cover rounded-md"
                       />
