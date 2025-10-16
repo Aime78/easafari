@@ -57,7 +57,7 @@ export const useAccommodationCategories = () => {
   const createCategoryMutation = useMutation<
     AccommodationCategory,
     ApiErrorResponse,
-    { name: string }
+    FormData | { name: string }
   >({
     mutationFn: accommodationService.createCategory,
     onSuccess: () => {

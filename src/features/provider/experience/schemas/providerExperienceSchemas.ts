@@ -17,7 +17,7 @@ export const createProviderExperienceSchema = object({
       "Price must be a positive number"
     ),
   duration: string().min(1, "Duration is required"),
-  included: string().min(1, "Included items are required"),
+  whats_included: string().min(1, "Included items are required"),
   experience_category_id: string().min(1, "Category is required"),
   attraction_id: string().min(1, "Attraction is required"),
 });

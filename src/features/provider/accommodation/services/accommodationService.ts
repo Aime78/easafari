@@ -35,10 +35,16 @@ export const providerAccommodationService = {
       },
     }),
   update: (id: string, data: FormData) =>
-    api.put<Accommodation>(`/provider/accommodations/${id}`, data, {
+    api.post<Accommodation>(`/provider/accommodations/${id}`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     }),
   delete: (id: string) => api.delete(`/provider/accommodations/${id}`),
+  createRoom: (data: FormData) =>
+    api.post("/provider/rooms", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
 };

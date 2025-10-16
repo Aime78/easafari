@@ -44,6 +44,8 @@ import type { Experience, ExperienceCategory } from "../types/experienceTypes";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import AddProviderExperienceDialog from "./AddProviderExperienceDialog";
 import DeleteProviderExperienceDialog from "./DeleteProviderExperienceDialog";
+import EditProviderExperienceDialog from "./EditProviderExperienceDialog";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface ProviderExperienceTableProps {
   experiences: Experience[];
@@ -60,6 +62,10 @@ const ProviderExperienceTable = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [experienceToDelete, setExperienceToDelete] =
     useState<Experience | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [experienceToEdit, setExperienceToEdit] = useState<Experience | null>(
+    null
+  );
 
   const getFilteredExperiences = () => {
     let filtered = experiences;
@@ -104,6 +110,16 @@ const ProviderExperienceTable = ({
   const handleDeleteSuccess = () => {
     setDeleteDialogOpen(false);
     setExperienceToDelete(null);
+  };
+
+  const handleEditClick = (experience: Experience) => {
+    setExperienceToEdit(experience);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setEditDialogOpen(false);
+    setExperienceToEdit(null);
   };
 
   const getPageTitle = () => {
@@ -250,7 +266,7 @@ const ProviderExperienceTable = ({
                     <TableCell>
                       {exp.thumbnail ? (
                         <img
-                          src={`https://easafari.tanduka.com/${exp.thumbnail}`}
+                          src={getImageUrl(exp.thumbnail)}
                           alt={exp.name}
                           className="w-12 h-12 object-cover rounded-md"
                         />
@@ -306,7 +322,9 @@ const ProviderExperienceTable = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEditClick(exp)}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
@@ -411,6 +429,16 @@ const ProviderExperienceTable = ({
           onOpenChange={setDeleteDialogOpen}
           experience={experienceToDelete}
           onSuccess={handleDeleteSuccess}
+        />
+      )}
+
+      {/* Edit Dialog */}
+      {experienceToEdit && (
+        <EditProviderExperienceDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          experience={experienceToEdit}
+          onSuccess={handleEditSuccess}
         />
       )}
     </Card>

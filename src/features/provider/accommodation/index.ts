@@ -3,6 +3,7 @@
 // Components
 export { default as ProviderAccommodationTable } from "./components/ProviderAccommodationTable";
 export { AddProviderAccommodationDialog } from "./components/AddProviderAccommodationDialog";
+export { AddProviderAccommodationRoomDialog } from "./components/AddProviderAccommodationRoomDialog";
 export { DeleteProviderAccommodationDialog } from "./components/DeleteProviderAccommodationDialog";
 
 // Pages
