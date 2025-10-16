@@ -14,7 +14,8 @@ axiosInstance.interceptors.request.use(
   (config) => {
     console.log("Request sent: ", { config });
 
-    const token = import.meta.env.VITE_API_PROVIDER_TOKEN;
+    //const token = import.meta.env.VITE_API_PROVIDER_TOKEN;
+    const token = localStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

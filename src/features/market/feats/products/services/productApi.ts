@@ -64,11 +64,13 @@ export const productsApi = {
 
   getSingleProduct: async (id: number) => {
     try {
+      const token = localStorage.getItem("token");
+
       const product = await get<SingleProductResponse>(
         `/market/products/${id}`,
         {
           headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_API_SECOND_TOKEN}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
