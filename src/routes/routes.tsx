@@ -71,6 +71,11 @@ const ProviderSettingsPage = lazy(() =>
     default: module.ProviderSettingsPage,
   }))
 );
+const ProviderBookingsPage = lazy(() =>
+  import("@/features/provider/booking").then((module) => ({
+    default: module.BookingsPage,
+  }))
+);
 
 const router = createBrowserRouter([
   {
@@ -237,6 +242,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <ProviderExperiencesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "bookings",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProviderBookingsPage />
           </Suspense>
         ),
       },
