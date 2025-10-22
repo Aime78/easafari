@@ -61,6 +61,13 @@ const ProviderAccommodationsPage = lazy(() =>
     default: module.ProviderAccommodationsPage,
   }))
 );
+const ProviderAccommodationDetailsPage = lazy(() =>
+  import(
+    "@/features/provider/accommodation/pages/ProviderAccommodationDetailsPage"
+  ).then((module) => ({
+    default: module.default,
+  }))
+);
 const ProviderExperiencesPage = lazy(() =>
   import("@/features/provider/experience").then((module) => ({
     default: module.ProviderExperiencesPage,
@@ -225,7 +232,7 @@ const router = createBrowserRouter([
         path: "accommodations/:id",
         element: (
           <Suspense fallback={<div>Loading...</div>}>
-            <ProviderAccommodationsPage />
+            <ProviderAccommodationDetailsPage />
           </Suspense>
         ),
       },

@@ -66,6 +66,9 @@ export const AddProviderAccommodationDialog = ({
       description: "",
       address: "",
       price: "",
+      latitude: "",
+      longitude: "",
+      rating: "",
       amenities: "",
       accommodation_category_id: "",
       attraction_id: "",
@@ -81,6 +84,9 @@ export const AddProviderAccommodationDialog = ({
       formData.append("description", data.description);
       formData.append("address", data.address);
       formData.append("price", data.price);
+      formData.append("latitude", data.latitude);
+      formData.append("longitude", data.longitude);
+      formData.append("rating", data.rating);
       formData.append("amenities", data.amenities);
       formData.append(
         "accommodation_category_id",
@@ -247,6 +253,64 @@ export const AddProviderAccommodationDialog = ({
                   <FormLabel>Address</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter address" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                name="latitude"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="-1.2921"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="longitude"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="36.8219"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              name="rating"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rating (0-5)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      placeholder="4.5"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

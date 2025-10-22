@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -46,7 +47,6 @@ import type {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { getImageUrl, getFallbackImageUrl } from "@/lib/imageUtils";
 import AddProviderAccommodationDialog from "./AddProviderAccommodationDialog";
-import AddProviderAccommodationRoomDialog from "./AddProviderAccommodationRoomDialog";
 import DeleteProviderAccommodationDialog from "./DeleteProviderAccommodationDialog";
 import EditProviderAccommodationDialog from "./EditProviderAccommodationDialog";
 
@@ -59,6 +59,7 @@ const ProviderAccommodationTable = ({
   accommodations,
   selectedCategory,
 }: ProviderAccommodationTableProps) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -126,6 +127,10 @@ const ProviderAccommodationTable = ({
   const handleEditSuccess = () => {
     setEditDialogOpen(false);
     setAccommodationToEdit(null);
+  };
+
+  const handleAccommodationClick = (accommodation: Accommodation) => {
+    navigate(`/provider/accommodations/${accommodation.id}`);
   };
 
   const getPageTitle = () => {
@@ -239,12 +244,6 @@ const ProviderAccommodationTable = ({
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <AddProviderAccommodationRoomDialog>
-            <Button variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Room
-            </Button>
-          </AddProviderAccommodationRoomDialog>
           <AddProviderAccommodationDialog>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -275,7 +274,11 @@ const ProviderAccommodationTable = ({
               </TableHeader>
               <TableBody>
                 {currentAccommodations.map((acc) => (
-                  <TableRow key={acc.id}>
+                  <TableRow
+                    key={acc.id}
+                    className="cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => handleAccommodationClick(acc)}
+                  >
                     <TableCell>
                       {acc.thumbnail ? (
                         <img
@@ -327,20 +330,30 @@ const ProviderAccommodationTable = ({
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleEditClick(acc)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditClick(acc);
+                            }}
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600"
-                            onClick={() => handleDeleteClick(acc)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(acc);
+                            }}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete
