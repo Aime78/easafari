@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import ProviderAccommodationTable from "../components/ProviderAccommodationTable";
+import AccommodationTableSkeleton from "../components/AccommodationTableSkeleton";
 import {
   useProviderAccommodations,
   useProviderAccommodationCategories,
@@ -40,14 +41,7 @@ const ProviderAccommodationsPage = () => {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading accommodations...</p>
-        </div>
-      </div>
-    );
+    return <AccommodationTableSkeleton />;
   }
 
   if (error) {

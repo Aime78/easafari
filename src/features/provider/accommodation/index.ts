@@ -8,6 +8,7 @@ export { DeleteProviderAccommodationDialog } from "./components/DeleteProviderAc
 
 // Pages
 export { default as ProviderAccommodationsPage } from "./pages/ProviderAccommodationsPage";
+export { default as ProviderAccommodationDetailsPage } from "./pages/ProviderAccommodationDetailsPage";
 
 // Hooks
 export {
@@ -26,8 +27,13 @@ export { providerAccommodationService } from "./services/accommodationService";
 // Types
 export type {
   Accommodation,
+  AccommodationDetails,
+  AccommodationDetailsResponse,
   AccommodationCategory,
   Attraction,
+  Room,
+  TourProvider,
+  Review,
   CreateAccommodationData,
   AccommodationSearchParams,
   ApiError,

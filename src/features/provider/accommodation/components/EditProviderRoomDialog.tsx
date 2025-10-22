@@ -31,9 +31,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { providerAccommodationService } from "../services/accommodationService";
 import { toastNotification } from "@/components/custom/ToastNotification";
+import { getImageUrl, getFallbackImageUrl } from "@/lib/imageUtils";
+import type { Room } from "../types/accommodationTypes";
 
-// Schema for room creation
-const createProviderRoomSchema = z.object({
+// Schema for room editing
+const editProviderRoomSchema = z.object({
   name: z
     .string()
     .min(1, "Room name is required")
@@ -66,39 +68,42 @@ const createProviderRoomSchema = z.object({
     ),
 });
 
-type AddProviderRoomForm = z.infer<typeof createProviderRoomSchema>;
+type EditProviderRoomForm = z.infer<typeof editProviderRoomSchema>;
 
-interface AddProviderAccommodationRoomDialogProps {
+interface EditProviderRoomDialogProps {
   children: React.ReactNode;
-  accommodationId: string;
+  room: Room;
   onSuccess?: () => void;
 }
 
-export const AddProviderAccommodationRoomDialog = ({
+export const EditProviderRoomDialog = ({
   children,
-  accommodationId,
+  room,
   onSuccess,
-}: AddProviderAccommodationRoomDialogProps) => {
+}: EditProviderRoomDialogProps) => {
   const [open, setOpen] = useState(false);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>(
+    room.images || []
+  );
 
   const queryClient = useQueryClient();
 
-  const form = useForm<AddProviderRoomForm>({
-    resolver: zodResolver(createProviderRoomSchema),
+  const form = useForm<EditProviderRoomForm>({
+    resolver: zodResolver(editProviderRoomSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      capacity: "",
-      price_per_night: "",
-      is_available: "1",
-      quantity: "",
+      name: room.name,
+      description: room.description,
+      capacity: room.capacity.toString(),
+      price_per_night: room.price_per_night.toString(),
+      is_available: room.is_available.toString(),
+      quantity: room.quantity.toString(),
     },
   });
 
-  const createRoomMutation = useMutation({
-    mutationFn: async (data: AddProviderRoomForm & { images?: File[] }) => {
+  const updateRoomMutation = useMutation({
+    mutationFn: async (data: EditProviderRoomForm & { newImages?: File[] }) => {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("description", data.description);
@@ -106,22 +111,34 @@ export const AddProviderAccommodationRoomDialog = ({
       formData.append("price_per_night", data.price_per_night);
       formData.append("is_available", data.is_available);
       formData.append("quantity", data.quantity);
-      formData.append("accommodation_id", accommodationId);
+      formData.append("accommodation_id", room.accommodation_id.toString());
 
-      // Add multiple images
-      if (data.images && data.images.length > 0) {
-        data.images.forEach((image, index) => {
-          formData.append(`images[${index}]`, image);
+      // Add existing images that weren't removed
+      existingImages.forEach((image, index) => {
+        formData.append(`existing_images[${index}]`, image);
+      });
+
+      // Add new images
+      if (data.newImages && data.newImages.length > 0) {
+        data.newImages.forEach((image, index) => {
+          formData.append(`new_images[${index}]`, image);
         });
       }
 
-      return providerAccommodationService.createRoom(formData);
+      return providerAccommodationService.updateRoom(
+        room.id.toString(),
+        formData
+      );
     },
     onSuccess: () => {
-      toastNotification.success("Success!", "Room created successfully!");
+      toastNotification.success("Success!", "Room updated successfully!");
       // Invalidate specific accommodation details
       queryClient.invalidateQueries({
-        queryKey: ["provider", "accommodation", accommodationId],
+        queryKey: [
+          "provider",
+          "accommodation",
+          room.accommodation_id.toString(),
+        ],
       });
       // Invalidate general room and accommodation lists
       queryClient.invalidateQueries({
@@ -130,46 +147,49 @@ export const AddProviderAccommodationRoomDialog = ({
       queryClient.invalidateQueries({
         queryKey: ["provider", "accommodations"],
       });
-      form.reset();
-      setImageFiles([]);
-      setImagePreviews([]);
+      setNewImageFiles([]);
+      setNewImagePreviews([]);
       setOpen(false);
       onSuccess?.();
     },
     onError: (error) => {
       toastNotification.error(
         "Error",
-        error instanceof Error ? error.message : "Failed to create room"
+        error instanceof Error ? error.message : "Failed to update room"
       );
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      const newImageFiles = [...imageFiles, ...files];
-      setImageFiles(newImageFiles);
+      const newFiles = [...newImageFiles, ...files];
+      setNewImageFiles(newFiles);
 
       // Create previews for new files
       files.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setImagePreviews((prev) => [...prev, reader.result as string]);
+          setNewImagePreviews((prev) => [...prev, reader.result as string]);
         };
         reader.readAsDataURL(file);
       });
     }
   };
 
-  const removeImage = (index: number) => {
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  const removeNewImage = (index: number) => {
+    setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const onSubmit = (data: AddProviderRoomForm) => {
-    createRoomMutation.mutate({
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const onSubmit = (data: EditProviderRoomForm) => {
+    updateRoomMutation.mutate({
       ...data,
-      images: imageFiles,
+      newImages: newImageFiles,
     });
   };
 
@@ -178,7 +198,7 @@ export const AddProviderAccommodationRoomDialog = ({
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle>Add New Room</AlertDialogTitle>
+          <AlertDialogTitle>Edit Room: {room.name}</AlertDialogTitle>
         </AlertDialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -293,56 +313,97 @@ export const AddProviderAccommodationRoomDialog = ({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <FormLabel>Room Images</FormLabel>
-              <div className="flex items-center space-x-4 w-full">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    document
-                      .getElementById("provider-room-images-upload")
-                      ?.click()
-                  }
-                  className="flex items-center space-x-2 w-full"
-                >
-                  <Upload className="h-4 w-4" />
-                  <span>Upload Room Images</span>
-                </Button>
-                <input
-                  id="provider-room-images-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </div>
 
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  {imagePreviews.map((preview, index) => (
-                    <Card key={index} className="relative">
-                      <CardContent className="p-2">
-                        <img
-                          src={preview}
-                          alt={`Room preview ${index + 1}`}
-                          className="w-full h-32 object-cover rounded"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-1 right-1 h-6 w-6 p-0"
-                          onClick={() => removeImage(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
+              {/* Existing Images */}
+              {existingImages.length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Current Images:</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {existingImages.map((image, index) => (
+                      <Card key={index} className="relative">
+                        <CardContent className="p-2">
+                          <img
+                            src={getImageUrl(image)}
+                            alt={`Room image ${index + 1}`}
+                            className="w-full h-20 object-cover rounded"
+                            onError={(e) => {
+                              e.currentTarget.src = getFallbackImageUrl();
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                            onClick={() => removeExistingImage(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
               )}
+
+              {/* Add New Images */}
+              <div>
+                <div className="flex items-center space-x-4 w-full">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      document
+                        .getElementById("edit-room-images-upload")
+                        ?.click()
+                    }
+                    className="flex items-center space-x-2 w-full"
+                  >
+                    <Upload className="h-4 w-4" />
+                    <span>Add More Images</span>
+                  </Button>
+                  <input
+                    id="edit-room-images-upload"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleNewImageChange}
+                    className="hidden"
+                  />
+                </div>
+
+                {newImagePreviews.length > 0 && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2 mt-4">
+                      New Images:
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {newImagePreviews.map((preview, index) => (
+                        <Card key={index} className="relative">
+                          <CardContent className="p-2">
+                            <img
+                              src={preview}
+                              alt={`New room preview ${index + 1}`}
+                              className="w-full h-20 object-cover rounded"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-1 right-1 h-6 w-6 p-0"
+                              onClick={() => removeNewImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex justify-end space-x-2 pt-4">
@@ -350,15 +411,15 @@ export const AddProviderAccommodationRoomDialog = ({
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                disabled={createRoomMutation.isPending}
+                disabled={updateRoomMutation.isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createRoomMutation.isPending}>
-                {createRoomMutation.isPending && (
+              <Button type="submit" disabled={updateRoomMutation.isPending}>
+                {updateRoomMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Create Room
+                Update Room
               </Button>
             </div>
           </form>
@@ -368,4 +429,4 @@ export const AddProviderAccommodationRoomDialog = ({
   );
 };
 
-export default AddProviderAccommodationRoomDialog;
+export default EditProviderRoomDialog;

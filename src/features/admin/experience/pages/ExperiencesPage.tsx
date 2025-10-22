@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import ExperienceTable from "../components/ExperienceTable";
+import ExperienceTableSkeleton from "../../../provider/experience/components/ExperienceTableSkeleton";
 import {
   useExperiences,
   useExperienceCategories,
@@ -38,14 +39,7 @@ const ExperiencesPage = () => {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading experiences...</p>
-        </div>
-      </div>
-    );
+    return <ExperienceTableSkeleton />;
   }
 
   if (error) {

@@ -47,4 +47,11 @@ export const providerAccommodationService = {
         "Content-Type": "multipart/form-data",
       },
     }),
+  updateRoom: (id: string, data: FormData) =>
+    api.post(`/provider/rooms/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  deleteRoom: (id: string) => api.delete(`/provider/rooms/${id}`),
 };

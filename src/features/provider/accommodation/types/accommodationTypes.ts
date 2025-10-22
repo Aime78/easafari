@@ -1,3 +1,64 @@
+export interface Room {
+  id: number;
+  accommodation_id: number;
+  name: string;
+  description: string;
+  capacity: number;
+  price_per_night: number;
+  is_available: number;
+  images: string[];
+  created_at: string;
+  updated_at: string;
+  quantity: number;
+}
+
+export interface TourProvider {
+  id: number;
+  name: string;
+  description: string;
+  address: string;
+  is_verified: number;
+  rating: number | null;
+  thumbnail: string;
+  mobile: string;
+  phone: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Review {
+  id: number;
+  // Add other review properties when available
+}
+
+export interface AccommodationDetails {
+  id: number;
+  name: string;
+  description: string;
+  address: string;
+  price: number;
+  latitude: string;
+  longitude: string;
+  rating: number;
+  thumbnail: string;
+  images: string[] | null;
+  amenities: string;
+  accommodation_category_id: number;
+  tour_provider_id?: number;
+  created_at: string;
+  updated_at: string;
+  reviews_count: number;
+  rooms: Room[];
+  tour_provider: TourProvider;
+  reviews: Review[];
+}
+
+export interface AccommodationDetailsResponse {
+  accommodation: AccommodationDetails;
+  similar: Accommodation[];
+}
+
 export interface Accommodation {
   id: number;
   name: string;

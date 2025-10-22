@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Bed } from "lucide-react";
 import ExperienceBookingTable from "./BookingTable";
 import AccommodationBookingTable from "./AccommodationBookingTable";
+import BookingTabsSkeleton from "./BookingTabsSkeleton";
 import {
   useProviderExperienceBookings,
   useProviderAccommodationBookings,
@@ -62,14 +63,7 @@ const BookingTabs = () => {
 
   // Loading state
   if (experienceLoading || accommodationLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading bookings...</p>
-        </div>
-      </div>
-    );
+    return <BookingTabsSkeleton />;
   }
 
   // Error state
