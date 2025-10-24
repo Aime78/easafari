@@ -17,7 +17,6 @@ import {
   Trash2,
   Eye,
   Filter,
-  Download,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -203,18 +202,12 @@ const AccommodationTable = ({
             Filter
           </Button>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
+        <AddAccommodationDialog>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Accommodation
           </Button>
-          <AddAccommodationDialog>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Accommodation
-            </Button>
-          </AddAccommodationDialog>
-        </div>
+        </AddAccommodationDialog>
       </div>
       {currentAccommodations.length === 0 ? (
         <EmptyState />

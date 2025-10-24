@@ -308,9 +308,10 @@ const ProviderAccommodationDetailsPage = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex items-start space-x-4">
-                  <Avatar className="h-16 w-16">
+                  <Avatar className="h-16 w-16 flex-shrink-0">
                     <AvatarImage
                       src={getImageUrl(accommodation.tour_provider.thumbnail)}
+                      className="object-cover"
                     />
                     <AvatarFallback>
                       {accommodation.tour_provider.name[0]}

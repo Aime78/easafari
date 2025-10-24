@@ -10,7 +10,7 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Filter, Download } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 
 const AccommodationTableSkeleton = () => {
   // Create skeleton rows
@@ -41,16 +41,10 @@ const AccommodationTableSkeleton = () => {
         </div>
 
         {/* Action Buttons Skeleton */}
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" disabled>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button size="sm" disabled>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Accommodation
-          </Button>
-        </div>
+        <Button size="sm" disabled>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Accommodation
+        </Button>
       </div>
 
       {/* Table Skeleton */}

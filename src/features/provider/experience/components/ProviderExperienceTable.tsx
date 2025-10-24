@@ -16,7 +16,6 @@ import {
   Edit,
   Trash2,
   Filter,
-  Download,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -24,6 +23,8 @@ import {
   MapPin,
   SearchX,
   Clock,
+  ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -66,6 +67,7 @@ const ProviderExperienceTable = ({
   const [experienceToEdit, setExperienceToEdit] = useState<Experience | null>(
     null
   );
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   const getFilteredExperiences = () => {
     let filtered = experiences;
@@ -120,6 +122,20 @@ const ProviderExperienceTable = ({
   const handleEditSuccess = () => {
     setEditDialogOpen(false);
     setExperienceToEdit(null);
+  };
+
+  const handleImageError = (experienceId: string) => {
+    console.log("Image failed to load for experience:", experienceId);
+    setImageErrors((prev) => new Set(prev).add(experienceId));
+  };
+
+  const retryImage = (experienceId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setImageErrors((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(experienceId);
+      return newSet;
+    });
   };
 
   const getPageTitle = () => {
@@ -227,18 +243,12 @@ const ProviderExperienceTable = ({
             Filter
           </Button>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
+        <AddProviderExperienceDialog>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Experience
           </Button>
-          <AddProviderExperienceDialog>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Experience
-            </Button>
-          </AddProviderExperienceDialog>
-        </div>
+        </AddProviderExperienceDialog>
       </div>
       {currentExperiences.length === 0 ? (
         <EmptyState />
@@ -264,18 +274,26 @@ const ProviderExperienceTable = ({
                 {currentExperiences.map((exp) => (
                   <TableRow key={exp.id}>
                     <TableCell>
-                      {exp.thumbnail ? (
+                      {exp.thumbnail && !imageErrors.has(exp.id.toString()) ? (
                         <img
                           src={getImageUrl(exp.thumbnail)}
                           alt={exp.name}
                           className="w-12 h-12 object-cover rounded-md"
+                          onError={() => handleImageError(exp.id.toString())}
                         />
                       ) : (
-                        <img
-                          src="/image_placeholder.png"
-                          alt={exp.name}
-                          className="w-12 h-12 object-cover rounded-md"
-                        />
+                        <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
+                          <ImageIcon className="w-6 h-6 text-gray-400" />
+                          {imageErrors.has(exp.id.toString()) && (
+                            <button
+                              onClick={(e) => retryImage(exp.id.toString(), e)}
+                              className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                              title="Retry loading image"
+                            >
+                              <RotateCcw className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                        </div>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{exp.name}</TableCell>

@@ -17,13 +17,14 @@ import {
   Edit,
   Trash2,
   Filter,
-  Download,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   SearchX,
   Home,
+  ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -45,7 +46,7 @@ import type {
   AccommodationCategory,
 } from "../types/accommodationTypes";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { getImageUrl, getFallbackImageUrl } from "@/lib/imageUtils";
+import { getImageUrl } from "@/lib/imageUtils";
 import AddProviderAccommodationDialog from "./AddProviderAccommodationDialog";
 import DeleteProviderAccommodationDialog from "./DeleteProviderAccommodationDialog";
 import EditProviderAccommodationDialog from "./EditProviderAccommodationDialog";
@@ -69,6 +70,7 @@ const ProviderAccommodationTable = ({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [accommodationToEdit, setAccommodationToEdit] =
     useState<Accommodation | null>(null);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   const getFilteredAccommodations = () => {
     let filtered = accommodations;
@@ -131,6 +133,20 @@ const ProviderAccommodationTable = ({
 
   const handleAccommodationClick = (accommodation: Accommodation) => {
     navigate(`/provider/accommodations/${accommodation.id}`);
+  };
+
+  const handleImageError = (accommodationId: string) => {
+    console.log("Image failed to load for accommodation:", accommodationId);
+    setImageErrors((prev) => new Set(prev).add(accommodationId));
+  };
+
+  const retryImage = (accommodationId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setImageErrors((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(accommodationId);
+      return newSet;
+    });
   };
 
   const getPageTitle = () => {
@@ -239,18 +255,12 @@ const ProviderAccommodationTable = ({
             Filter
           </Button>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
+        <AddProviderAccommodationDialog>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Accommodation
           </Button>
-          <AddProviderAccommodationDialog>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Accommodation
-            </Button>
-          </AddProviderAccommodationDialog>
-        </div>
+        </AddProviderAccommodationDialog>
       </div>
       {currentAccommodations.length === 0 ? (
         <EmptyState />
@@ -280,18 +290,26 @@ const ProviderAccommodationTable = ({
                     onClick={() => handleAccommodationClick(acc)}
                   >
                     <TableCell>
-                      {acc.thumbnail ? (
+                      {acc.thumbnail && !imageErrors.has(acc.id.toString()) ? (
                         <img
                           src={getImageUrl(acc.thumbnail)}
                           alt={acc.name}
                           className="w-12 h-12 object-cover rounded-md"
+                          onError={() => handleImageError(acc.id.toString())}
                         />
                       ) : (
-                        <img
-                          src={getFallbackImageUrl()}
-                          alt={acc.name}
-                          className="w-12 h-12 object-cover rounded-md"
-                        />
+                        <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
+                          <ImageIcon className="w-6 h-6 text-gray-400" />
+                          {imageErrors.has(acc.id.toString()) && (
+                            <button
+                              onClick={(e) => retryImage(acc.id.toString(), e)}
+                              className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                              title="Retry loading image"
+                            >
+                              <RotateCcw className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                        </div>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{acc.name}</TableCell>

@@ -52,6 +52,10 @@ export const queryKeys = {
       all: ["experience-categories"] as const,
       lists: () => [...queryKeys.categories.experiences.all, "list"] as const,
     },
+    events: {
+      all: ["event-categories"] as const,
+      lists: () => [...queryKeys.categories.events.all, "list"] as const,
+    },
   },
 
   // Provider
@@ -94,6 +98,17 @@ export const queryKeys = {
         [...queryKeys.provider.bookings.details(), id] as const,
       search: (query: string) =>
         [...queryKeys.provider.bookings.all, "search", query] as const,
+    },
+    events: {
+      all: ["provider", "events"] as const,
+      lists: () => [...queryKeys.provider.events.all, "list"] as const,
+      list: (filters: string) =>
+        [...queryKeys.provider.events.lists(), { filters }] as const,
+      details: () => [...queryKeys.provider.events.all, "detail"] as const,
+      detail: (id: string) =>
+        [...queryKeys.provider.events.details(), id] as const,
+      search: (query: string) =>
+        [...queryKeys.provider.events.all, "search", query] as const,
     },
   },
 };

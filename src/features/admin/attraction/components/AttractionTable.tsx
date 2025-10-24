@@ -18,13 +18,14 @@ import {
   Trash2,
   Eye,
   Filter,
-  Download,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   MapPin,
   SearchX,
+  ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -42,6 +43,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { AddAttractionDialog } from "./AddAttractionDialog";
 import type { Attraction, AttractionCategory } from "../types/attractionTypes";
+import { getImageUrl } from "@/lib/imageUtils";
 
 interface AttractionTableProps {
   attractions: Attraction[];
@@ -55,6 +57,7 @@ const AttractionTable = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
   const getFilteredAttractions = () => {
@@ -95,6 +98,20 @@ const AttractionTable = ({
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const handleImageError = (attractionId: string) => {
+    console.log("Image failed to load for attraction:", attractionId);
+    setImageErrors((prev) => new Set(prev).add(attractionId));
+  };
+
+  const retryImage = (attractionId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setImageErrors((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(attractionId);
+      return newSet;
+    });
   };
 
   const getPageTitle = () => {
@@ -209,18 +226,12 @@ const AttractionTable = ({
           </Button>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
+        <AddAttractionDialog>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Attraction
           </Button>
-          <AddAttractionDialog>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Attraction
-            </Button>
-          </AddAttractionDialog>
-        </div>
+        </AddAttractionDialog>
       </div>
 
       {currentAttractions.length === 0 ? (
@@ -244,18 +255,31 @@ const AttractionTable = ({
               {currentAttractions.map((attraction) => (
                 <TableRow key={attraction.id}>
                   <TableCell>
-                    {attraction.thumbnail ? (
+                    {attraction.thumbnail &&
+                    !imageErrors.has(attraction.id.toString()) ? (
                       <img
-                        src={`http://161.35.164.109/${attraction.thumbnail}`}
+                        src={getImageUrl(attraction.thumbnail)}
                         alt={attraction.name}
                         className="w-12 h-12 object-cover rounded-md"
+                        onError={() =>
+                          handleImageError(attraction.id.toString())
+                        }
                       />
                     ) : (
-                      <img
-                        src={attraction.thumbnail}
-                        alt={attraction.name}
-                        className="w-12 h-12 object-cover rounded-md"
-                      />
+                      <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
+                        <ImageIcon className="w-6 h-6 text-gray-400" />
+                        {imageErrors.has(attraction.id.toString()) && (
+                          <button
+                            onClick={(e) =>
+                              retryImage(attraction.id.toString(), e)
+                            }
+                            className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                            title="Retry loading image"
+                          >
+                            <RotateCcw className="w-4 h-4 text-white" />
+                          </button>
+                        )}
+                      </div>
                     )}
                   </TableCell>
                   <TableCell className="font-medium">

@@ -40,7 +40,7 @@ const ProviderSidebar = () => {
       label: "Attractions",
       route: "/provider/attractions",
     },
-    EVENT: {
+    EVENTS: {
       icon: Calendar,
       label: "Events",
       route: "/provider/events",
@@ -99,11 +99,6 @@ const ProviderSidebar = () => {
           <NavLink to={"/provider/bookings"} className={getLinkClassName}>
             <Plus className="w-4 h-4" />
             <span>Bookings</span>
-          </NavLink>
-
-          <NavLink to={"/provider/payments"} className={getLinkClassName}>
-            <Bed className="w-4 h-4" />
-            <span>Payments</span>
           </NavLink>
 
           <NavLink to={"/provider/profile"} className={getLinkClassName}>
