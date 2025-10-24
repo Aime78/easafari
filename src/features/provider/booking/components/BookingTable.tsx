@@ -12,7 +12,6 @@ import {
 import {
   Search,
   Filter,
-  Download,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -235,12 +234,6 @@ const ExperienceBookingTable = ({ bookings }: BookingTableProps) => {
               <SelectItem value="Bank">Bank Transfer</SelectItem>
             </SelectContent>
           </Select>
-
-          {/* Export button */}
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
         </div>
       </div>
 

@@ -73,6 +73,16 @@ const ProviderExperiencesPage = lazy(() =>
     default: module.ProviderExperiencesPage,
   }))
 );
+const ProviderEventsPage = lazy(() =>
+  import("@/features/provider/event").then((module) => ({
+    default: module.ProviderEventsPage,
+  }))
+);
+const ProviderEventDetailsPage = lazy(() =>
+  import("@/features/provider/event").then((module) => ({
+    default: module.ProviderEventDetailsPage,
+  }))
+);
 const ProviderSettingsPage = lazy(() =>
   import("@/features/provider/profile").then((module) => ({
     default: module.ProviderSettingsPage,
@@ -249,6 +259,38 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <ProviderExperiencesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "events",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProviderEventsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "events/:id",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProviderEventDetailsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "bookings",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProviderEventsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "events/:id",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProviderEventsPage />
           </Suspense>
         ),
       },

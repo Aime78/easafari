@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload } from "lucide-react";
+import { Upload, ImageIcon, RotateCcw } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -33,6 +33,7 @@ import { useAuthContext } from "@/contexts/useAuthContext";
 const ProviderSettingsPage = () => {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -72,8 +73,9 @@ const ProviderSettingsPage = () => {
 
       if (profileData.thumbnail) {
         setThumbnailPreview(
-          `${import.meta.env.VITE_API_BASE_URL}/${profileData.thumbnail}`
+          `${import.meta.env.VITE_API_IMAGE_BASE_URL}/${profileData.thumbnail}`
         );
+        setImageError(false); // Reset error when loading existing image
       }
     }
   }, [profileData, form]);
@@ -82,10 +84,21 @@ const ProviderSettingsPage = () => {
     const file = e.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
+      setImageError(false); // Reset error when new file is selected
       const reader = new FileReader();
       reader.onloadend = () => setThumbnailPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleImageError = () => {
+    console.log("Image failed to load, showing fallback UI");
+    setImageError(true);
+  };
+
+  const retryImage = () => {
+    console.log("Retrying image load");
+    setImageError(false);
   };
 
   const onSubmit = async (data: ProviderProfileFormData) => {
@@ -242,11 +255,31 @@ const ProviderSettingsPage = () => {
                   {thumbnailPreview && (
                     <Card className="w-full">
                       <CardContent className="p-2">
-                        <img
-                          src={`thumbnailPreview`}
-                          alt="Thumbnail preview"
-                          className="w-full h-32 object-cover rounded"
-                        />
+                        {imageError ? (
+                          <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300">
+                            <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
+                            <p className="text-sm text-gray-500 mb-2">
+                              Image failed to load
+                            </p>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={retryImage}
+                              className="flex items-center space-x-1"
+                            >
+                              <RotateCcw className="h-3 w-3" />
+                              <span>Retry</span>
+                            </Button>
+                          </div>
+                        ) : (
+                          <img
+                            src={thumbnailPreview}
+                            alt="Thumbnail preview"
+                            className="w-full h-32 object-cover rounded"
+                            onError={handleImageError}
+                          />
+                        )}
                       </CardContent>
                     </Card>
                   )}

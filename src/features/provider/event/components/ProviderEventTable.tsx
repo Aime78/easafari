@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -15,15 +16,15 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-  Eye,
   Filter,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  MapPin,
   SearchX,
-  Clock,
+  Calendar,
+  ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -40,48 +41,80 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
-import type { Experience, ExperienceCategory } from "../types/experienceTypes";
+import type { Event, EventCategory } from "../types/eventTypes";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { AddExperienceDialog } from "./AddExperienceDialog";
+import { getImageUrl } from "@/lib/imageUtils";
+import AddProviderEventDialog from "./AddProviderEventDialog";
+import EditProviderEventDialog from "./EditProviderEventDialog";
+import DeleteProviderEventDialog from "./DeleteProviderEventDialog";
 
-interface ExperienceTableProps {
-  experiences: Experience[];
-  selectedCategory: ExperienceCategory | null;
+interface ProviderEventTableProps {
+  events: Event[];
+  selectedCategory: EventCategory | null;
 }
 
-const ExperienceTable = ({
-  experiences,
+const ProviderEventTable = ({
+  events,
   selectedCategory,
-}: ExperienceTableProps) => {
+}: ProviderEventTableProps) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
 
-  const getFilteredExperiences = () => {
-    let filtered = experiences;
+  // Track image errors for each event by ID
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
+
+  const handleImageError = (eventId: number) => {
+    console.log("Image failed to load for event:", eventId);
+    setImageErrors((prev) => new Set(prev).add(eventId));
+  };
+
+  const retryImage = (eventId: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setImageErrors((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(eventId);
+      return newSet;
+    });
+  };
+
+  // Reset image errors when events change
+  useEffect(() => {
+    setImageErrors(new Set());
+  }, [events]);
+
+  const getFilteredEvents = () => {
+    let filtered = events;
 
     if (selectedCategory) {
       filtered = filtered.filter(
-        (exp) => exp.experience_category_id === selectedCategory.id
+        (event) => event.event_category_id === selectedCategory.id
       );
     }
 
     if (searchTerm.trim()) {
       filtered = filtered.filter(
-        (exp) =>
-          exp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          exp.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          exp.description.toLowerCase().includes(searchTerm.toLowerCase())
+        (event) =>
+          event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (event.organizer &&
+            event.organizer.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     return filtered;
   };
 
-  const filteredExperiences = getFilteredExperiences();
-  const totalPages = Math.ceil(filteredExperiences.length / itemsPerPage);
+  const filteredEvents = getFilteredEvents();
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentExperiences = filteredExperiences.slice(startIndex, endIndex);
+  const currentEvents = filteredEvents.slice(startIndex, endIndex);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -90,6 +123,10 @@ const ExperienceTable = ({
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const handleEventClick = (event: Event) => {
+    navigate(`/provider/events/${event.id}`);
   };
 
   const getPageTitle = () => {
@@ -101,9 +138,32 @@ const ExperienceTable = ({
     if (selectedCategory) {
       return selectedCategory.name;
     }
-    return "All Experiences";
+    return "My Events";
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const handleEditClick = (event: Event) => {
+    setEventToEdit(event);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setEditDialogOpen(false);
+    setEventToEdit(null);
+  };
+
+  const handleDeleteClick = (event: Event) => {
+    setEventToDelete(event);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteSuccess = () => {
+    setDeleteDialogOpen(false);
+    setEventToDelete(null);
+  };
   const EmptyState = () => {
     const isFiltered = searchTerm.trim() || selectedCategory;
     return (
@@ -112,43 +172,43 @@ const ExperienceTable = ({
           {isFiltered ? (
             <SearchX className="w-12 h-12 text-gray-400" />
           ) : (
-            <MapPin className="w-12 h-12 text-gray-400" />
+            <Calendar className="w-12 h-12 text-gray-400" />
           )}
         </div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          {isFiltered ? "No experiences found" : "No experiences yet"}
+          {isFiltered ? "No events found" : "No events yet"}
         </h3>
         <p className="text-gray-500 text-center max-w-sm mb-6">
           {isFiltered ? (
             searchTerm.trim() ? (
               selectedCategory ? (
                 <>
-                  No experiences in {selectedCategory.name} match "{searchTerm}
+                  No events in {selectedCategory.name} match "{searchTerm}
                   ". Try different keywords or browse other categories.
                 </>
               ) : (
                 <>
-                  No experiences match your search "{searchTerm}". Try different
+                  No events match your search "{searchTerm}". Try different
                   keywords or browse categories.
                 </>
               )
             ) : (
               <>
-                No experiences found in {selectedCategory?.name}. Try browsing
-                other categories.
+                No events found in {selectedCategory?.name}. Try browsing other
+                categories.
               </>
             )
           ) : (
-            "Get started by adding your first experience to showcase amazing activities."
+            "Get started by adding your first event to showcase amazing experiences."
           )}
         </p>
         {!isFiltered && (
-          <AddExperienceDialog>
+          <AddProviderEventDialog>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add First Experience
+              Add First Event
             </Button>
-          </AddExperienceDialog>
+          </AddProviderEventDialog>
         )}
         {isFiltered && (
           <div className="flex gap-2">
@@ -165,9 +225,9 @@ const ExperienceTable = ({
               <Button
                 variant="outline"
                 size="sm"
-                // onClick={() => navigate('/experiences')}
+                onClick={() => navigate("/provider/events")}
               >
-                View All Experiences
+                View All Events
               </Button>
             )}
           </div>
@@ -186,7 +246,7 @@ const ExperienceTable = ({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search experiences..."
+              placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-10 w-64"
@@ -197,104 +257,109 @@ const ExperienceTable = ({
             Filter
           </Button>
         </div>
-        <AddExperienceDialog>
+        <AddProviderEventDialog>
           <Button size="sm">
             <Plus className="h-4 w-4 mr-2" />
-            Add Experience
+            Add Event
           </Button>
-        </AddExperienceDialog>
+        </AddProviderEventDialog>
       </div>
-      {currentExperiences.length === 0 ? (
+      {currentEvents.length === 0 ? (
         <EmptyState />
       ) : (
         <>
           <ScrollArea className="xl:w-[1150px]">
             <Table>
-              <TableHeader className="bg-gray-100 rounded-t-md ">
+              <TableHeader className="bg-gray-100 rounded-t-md">
                 <TableRow>
                   <TableHead>Image</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Reviews</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Organizer</TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead>End Date</TableHead>
                   <TableHead>Last Updated</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentExperiences.map((exp) => (
-                  <TableRow key={exp.id}>
+                {currentEvents.map((event) => (
+                  <TableRow
+                    key={event.id}
+                    className="cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => handleEventClick(event)}
+                  >
                     <TableCell>
-                      {exp.thumbnail ? (
+                      {event.thumbnail && !imageErrors.has(event.id) ? (
                         <img
-                          src={`http://161.35.164.109/${exp.thumbnail}`}
-                          alt={exp.name}
+                          src={getImageUrl(event.thumbnail)}
+                          alt={event.name}
                           className="w-12 h-12 object-cover rounded-md"
+                          onError={() => handleImageError(event.id)}
                         />
                       ) : (
-                        <img
-                          src="/image_placeholder.png"
-                          alt={exp.name}
-                          className="w-12 h-12 object-cover rounded-md"
-                        />
+                        <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
+                          <ImageIcon className="w-6 h-6 text-gray-400" />
+                          {imageErrors.has(event.id) && (
+                            <button
+                              onClick={(e) => retryImage(event.id, e)}
+                              className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                              title="Retry loading image"
+                            >
+                              <RotateCcw className="w-4 h-4 text-white" />
+                            </button>
+                          )}
+                        </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">{exp.name}</TableCell>
+                    <TableCell className="font-medium">{event.name}</TableCell>
                     <TableCell className="text-gray-600 max-w-xs truncate">
-                      {exp.description}
+                      {event.description}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {exp.address}
+                      {event.location}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      ${exp.price}
+                      {event.organizer}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        {exp.duration}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        {exp.rating ? (
-                          <>
-                            <span className="text-yellow-500 mr-1">★</span>
-                            <span>
-                              {exp.rating ? exp.rating.toFixed(1) : "N/A"}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-gray-600 text-center">-</span>
-                        )}
-                      </div>
+                      {formatDate(event.start_date)}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {exp.reviews_count} reviews
+                      {formatDate(event.end_date)}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {new Date(exp.updated_at).toLocaleDateString()}
+                      {new Date(event.updated_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditClick(event);
+                            }}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(event);
+                            }}
+                          >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
@@ -310,7 +375,7 @@ const ExperienceTable = ({
               className="opacity-0 hover:opacity-100 transition-opacity"
             />
           </ScrollArea>
-          {filteredExperiences.length > 0 && (
+          {filteredEvents.length > 0 && (
             <div className="flex items-center justify-between px-2 py-4">
               <div className="flex items-center space-x-2">
                 <p className="text-sm font-medium">Rows per page</p>
@@ -338,8 +403,8 @@ const ExperienceTable = ({
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Showing {startIndex + 1} to{" "}
-                  {Math.min(endIndex, filteredExperiences.length)} of{" "}
-                  {filteredExperiences.length} results
+                  {Math.min(endIndex, filteredEvents.length)} of{" "}
+                  {filteredEvents.length} results
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -384,8 +449,26 @@ const ExperienceTable = ({
           )}
         </>
       )}
+
+      {/* Edit Dialog */}
+      {eventToEdit && (
+        <EditProviderEventDialog
+          event={eventToEdit}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={handleEditSuccess}
+        />
+      )}
+
+      {/* Delete Dialog */}
+      <DeleteProviderEventDialog
+        event={eventToDelete}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onSuccess={handleDeleteSuccess}
+      />
     </Card>
   );
 };
 
-export default ExperienceTable;
+export default ProviderEventTable;
