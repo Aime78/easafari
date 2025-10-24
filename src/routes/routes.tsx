@@ -282,22 +282,6 @@ const router = createBrowserRouter([
         path: "bookings",
         element: (
           <Suspense fallback={<div>Loading...</div>}>
-            <ProviderEventsPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: "events/:id",
-        element: (
-          <Suspense fallback={<div>Loading...</div>}>
-            <ProviderEventsPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: "bookings",
-        element: (
-          <Suspense fallback={<div>Loading...</div>}>
             <ProviderBookingsPage />
           </Suspense>
         ),

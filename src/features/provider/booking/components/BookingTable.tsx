@@ -19,6 +19,8 @@ import {
   SearchX,
   Calendar,
   Users,
+  ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   Select,
@@ -43,6 +45,7 @@ const ExperienceBookingTable = ({ bookings }: BookingTableProps) => {
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
 
   // Format date range helper
   const formatDateRange = (startDate: string, endDate: string) => {
@@ -138,6 +141,20 @@ const ExperienceBookingTable = ({ bookings }: BookingTableProps) => {
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const handleImageError = (experienceId: number) => {
+    console.log("Image failed to load for experience:", experienceId);
+    setImageErrors((prev) => new Set(prev).add(experienceId));
+  };
+
+  const retryImage = (experienceId: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setImageErrors((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(experienceId);
+      return newSet;
+    });
   };
 
   // Empty state component (following consistent pattern)
@@ -261,15 +278,30 @@ const ExperienceBookingTable = ({ bookings }: BookingTableProps) => {
                     {/* Experience */}
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        {booking.experience.thumbnail ? (
+                        {booking.experience.thumbnail &&
+                        !imageErrors.has(booking.experience.id) ? (
                           <img
                             src={getImageUrl(booking.experience.thumbnail)}
                             alt={booking.experience.name}
                             className="w-12 h-12 object-cover rounded-md"
+                            onError={() =>
+                              handleImageError(booking.experience.id)
+                            }
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
-                            <Calendar className="h-6 w-6 text-gray-400" />
+                          <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
+                            <ImageIcon className="w-6 h-6 text-gray-400" />
+                            {imageErrors.has(booking.experience.id) && (
+                              <button
+                                onClick={(e) =>
+                                  retryImage(booking.experience.id, e)
+                                }
+                                className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                                title="Retry loading image"
+                              >
+                                <RotateCcw className="w-4 h-4 text-white" />
+                              </button>
+                            )}
                           </div>
                         )}
                         <div className="min-w-0 flex-1">

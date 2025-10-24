@@ -19,6 +19,8 @@ import {
   SearchX,
   Calendar,
   Bed,
+  ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   Select,
@@ -45,6 +47,7 @@ const AccommodationBookingTable = ({
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
 
   // Format date range helper
   const formatDateRange = (checkInDate: string, checkOutDate: string) => {
@@ -135,6 +138,20 @@ const AccommodationBookingTable = ({
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const handleImageError = (accommodationId: number) => {
+    console.log("Image failed to load for accommodation:", accommodationId);
+    setImageErrors((prev) => new Set(prev).add(accommodationId));
+  };
+
+  const retryImage = (accommodationId: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setImageErrors((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(accommodationId);
+      return newSet;
+    });
   };
 
   // Empty state component (following consistent pattern)
@@ -260,15 +277,30 @@ const AccommodationBookingTable = ({
                     {/* Accommodation */}
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        {booking.accommodation.thumbnail ? (
+                        {booking.accommodation.thumbnail &&
+                        !imageErrors.has(booking.accommodation.id) ? (
                           <img
                             src={getImageUrl(booking.accommodation.thumbnail)}
                             alt={booking.accommodation.name}
                             className="w-12 h-12 object-cover rounded-md"
+                            onError={() =>
+                              handleImageError(booking.accommodation.id)
+                            }
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
-                            <Bed className="h-6 w-6 text-gray-400" />
+                          <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
+                            <ImageIcon className="w-6 h-6 text-gray-400" />
+                            {imageErrors.has(booking.accommodation.id) && (
+                              <button
+                                onClick={(e) =>
+                                  retryImage(booking.accommodation.id, e)
+                                }
+                                className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                                title="Retry loading image"
+                              >
+                                <RotateCcw className="w-4 h-4 text-white" />
+                              </button>
+                            )}
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
