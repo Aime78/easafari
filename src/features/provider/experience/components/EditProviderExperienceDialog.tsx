@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload, ImageIcon, RotateCcw } from "lucide-react";
+import { Loader2, Upload, ImageIcon, RotateCcw, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -190,8 +190,17 @@ export const EditProviderExperienceDialog = ({
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
       <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader>
+        <AlertDialogHeader className="relative">
           <AlertDialogTitle>Edit Experience</AlertDialogTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-gray-100"
+            onClick={() => handleOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </AlertDialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

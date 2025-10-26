@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload, ImageIcon } from "lucide-react";
+import { Loader2, Upload, ImageIcon, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -143,8 +143,17 @@ export const EditProviderEventDialog = ({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader>
+        <AlertDialogHeader className="relative">
           <AlertDialogTitle>Edit Event</AlertDialogTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-gray-100"
+            onClick={handleClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </AlertDialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

@@ -8,7 +8,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toastNotification } from "@/components/custom/ToastNotification";
 import type { Event } from "../types/eventTypes";
 import { useDeleteProviderEvent } from "../hooks/useProviderEvent";
@@ -61,8 +62,17 @@ export const DeleteProviderEventDialog = ({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
-        <AlertDialogHeader>
+        <AlertDialogHeader className="relative">
           <AlertDialogTitle>Delete Event</AlertDialogTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-gray-100"
+            onClick={() => onOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
           <AlertDialogDescription>
             Are you sure you want to delete "{event?.name}"? This action cannot
             be undone and will permanently remove the event from the system.
