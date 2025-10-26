@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { providerAccommodationService } from "../services/accommodationService";
 import { toastNotification } from "@/components/custom/ToastNotification";
 import type { Room } from "../types/accommodationTypes";
