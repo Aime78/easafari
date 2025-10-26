@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -53,13 +53,22 @@ export const DeleteProviderExperienceDialog = ({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
-        <AlertDialogHeader>
+        <AlertDialogHeader className="relative">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
               <AlertTriangle className="h-5 w-5 text-red-600" />
             </div>
             <AlertDialogTitle>Delete Experience</AlertDialogTitle>
           </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-gray-100"
+            onClick={() => onOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
           <AlertDialogDescription className="text-left">
             Are you sure you want to delete "{experience.name}"? This action
             cannot be undone and will permanently remove the experience from

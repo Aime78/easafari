@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Upload, X } from "lucide-react";
@@ -19,77 +18,64 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { providerExperienceService } from "../services/experienceService";
-import { createProviderExperienceSchema } from "../schemas/providerExperienceSchemas";
+import { providerEventService } from "../services/eventService";
 import {
-  useProviderExperienceCategories,
-  useProviderAttractions,
-} from "../hooks/useProviderExperience";
+  createProviderEventSchema,
+  type CreateProviderEventFormData,
+} from "../schemas/providerEventSchemas";
 import { toastNotification } from "@/components/custom/ToastNotification";
 
-type AddProviderExperienceForm = z.infer<typeof createProviderExperienceSchema>;
-
-interface AddProviderExperienceDialogProps {
+interface AddProviderEventDialogProps {
   children: React.ReactNode;
   onSuccess?: () => void;
 }
 
-export const AddProviderExperienceDialog = ({
+export const AddProviderEventDialog = ({
   children,
   onSuccess,
-}: AddProviderExperienceDialogProps) => {
+}: AddProviderEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
-  const { categories, loading: categoriesLoading } =
-    useProviderExperienceCategories();
-  const { data: attractions = [], isLoading: attractionsLoading } =
-    useProviderAttractions();
-  const form = useForm<AddProviderExperienceForm>({
-    resolver: zodResolver(createProviderExperienceSchema),
+
+  const form = useForm<CreateProviderEventFormData>({
+    resolver: zodResolver(createProviderEventSchema),
     defaultValues: {
       name: "",
       description: "",
-      address: "",
-      price: "",
-      duration: "",
-      whats_included: "",
-      experience_category_id: "",
-      attraction_id: "",
+      start_date: "",
+      end_date: "",
+      location: "",
+      organizer: "",
     },
   });
 
-  const createExperienceMutation = useMutation({
+  const createEventMutation = useMutation({
     mutationFn: async (
-      data: AddProviderExperienceForm & { thumbnail?: File }
+      data: CreateProviderEventFormData & { thumbnail?: File }
     ) => {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("description", data.description);
-      formData.append("address", data.address);
-      formData.append("price", data.price);
-      formData.append("duration", data.duration);
-      formData.append("whats_included", data.whats_included);
-      formData.append("experience_category_id", data.experience_category_id);
-      formData.append("attractions", JSON.stringify([data.attraction_id]));
+      formData.append("start_date", data.start_date);
+      formData.append("end_date", data.end_date);
+      formData.append("location", data.location);
+      formData.append("organizer", data.organizer);
+
       if (data.thumbnail) formData.append("thumbnail", data.thumbnail);
-      return providerExperienceService.create(formData);
+
+      return providerEventService.create(formData);
     },
     onSuccess: () => {
-      toastNotification.success("Success!", "Experience created successfully!");
-      queryClient.invalidateQueries({ queryKey: ["provider", "experiences"] });
+      toastNotification.success("Success!", "Event created successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["provider", "events"],
+      });
       form.reset();
       setThumbnailFile(null);
       setThumbnailPreview(null);
@@ -99,7 +85,7 @@ export const AddProviderExperienceDialog = ({
     onError: (error) => {
       toastNotification.error(
         "Error",
-        error instanceof Error ? error.message : "Failed to create experience"
+        error instanceof Error ? error.message : "Failed to create event"
       );
     },
   });
@@ -114,8 +100,8 @@ export const AddProviderExperienceDialog = ({
     }
   };
 
-  const onSubmit = (data: AddProviderExperienceForm) => {
-    createExperienceMutation.mutate({
+  const onSubmit = (data: CreateProviderEventFormData) => {
+    createEventMutation.mutate({
       ...data,
       thumbnail: thumbnailFile || undefined,
     });
@@ -126,7 +112,7 @@ export const AddProviderExperienceDialog = ({
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <AlertDialogHeader className="relative">
-          <AlertDialogTitle>New Experience</AlertDialogTitle>
+          <AlertDialogTitle>New Event</AlertDialogTitle>
           <Button
             type="button"
             variant="ghost"
@@ -144,14 +130,15 @@ export const AddProviderExperienceDialog = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Event Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter experience name" {...field} />
+                    <Input placeholder="Enter event name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               name="description"
               control={form.control}
@@ -161,7 +148,7 @@ export const AddProviderExperienceDialog = ({
                   <FormControl>
                     <textarea
                       className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      placeholder="Enter description"
+                      placeholder="Enter event description"
                       {...field}
                     />
                   </FormControl>
@@ -169,137 +156,64 @@ export const AddProviderExperienceDialog = ({
                 </FormItem>
               )}
             />
-            <FormField
-              name="experience_category_id"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categoriesLoading ? (
-                        <SelectItem value="loading" disabled>
-                          Loading categories...
-                        </SelectItem>
-                      ) : (
-                        categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id.toString()}>
-                            {cat.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="attraction_id"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Attraction</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select an attraction" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {attractionsLoading ? (
-                        <SelectItem value="loading" disabled>
-                          Loading attractions...
-                        </SelectItem>
-                      ) : (
-                        attractions.map((attraction) => (
-                          <SelectItem
-                            key={attraction.id}
-                            value={attraction.id.toString()}
-                          >
-                            {attraction.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="address"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                name="price"
+                name="start_date"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price</FormLabel>
+                    <FormLabel>Start Date</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="150"
-                        {...field}
-                      />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="duration"
+                name="end_date"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duration</FormLabel>
+                    <FormLabel>End Date</FormLabel>
                     <FormControl>
-                      <Input placeholder="2 hours" {...field} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
             <FormField
-              name="whats_included"
+              name="location"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What's Included</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Guide, Equipment, Transport"
-                      {...field}
-                    />
+                    <Input placeholder="Enter event location" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <FormField
+              name="organizer"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Organizer</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter organizer name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="space-y-2">
               <FormLabel>Thumbnail Image</FormLabel>
               <div className="flex items-center space-x-4 w-full">
@@ -308,7 +222,7 @@ export const AddProviderExperienceDialog = ({
                   variant="outline"
                   onClick={() =>
                     document
-                      .getElementById("provider-experience-thumbnail-upload")
+                      .getElementById("provider-event-thumbnail-upload")
                       ?.click()
                   }
                   className="flex items-center space-x-2 w-full"
@@ -317,7 +231,7 @@ export const AddProviderExperienceDialog = ({
                   <span>Upload Thumbnail</span>
                 </Button>
                 <input
-                  id="provider-experience-thumbnail-upload"
+                  id="provider-event-thumbnail-upload"
                   type="file"
                   accept="image/*"
                   onChange={handleThumbnailChange}
@@ -336,23 +250,21 @@ export const AddProviderExperienceDialog = ({
                 </Card>
               )}
             </div>
+
             <div className="flex justify-end space-x-2 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                disabled={createExperienceMutation.isPending}
+                disabled={createEventMutation.isPending}
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={createExperienceMutation.isPending}
-              >
-                {createExperienceMutation.isPending && (
+              <Button type="submit" disabled={createEventMutation.isPending}>
+                {createEventMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Create Experience
+                Create Event
               </Button>
             </div>
           </form>
@@ -362,4 +274,4 @@ export const AddProviderExperienceDialog = ({
   );
 };
 
-export default AddProviderExperienceDialog;
+export default AddProviderEventDialog;

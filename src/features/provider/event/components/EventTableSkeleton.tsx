@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Filter } from "lucide-react";
 
-const ExperienceTableSkeleton = () => {
+const EventTableSkeleton = () => {
   // Create skeleton rows
   const skeletonRows = Array.from({ length: 8 }, (_, i) => i);
 
@@ -29,7 +29,7 @@ const ExperienceTableSkeleton = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-4 w-4" />
             <Input
-              placeholder="Search experiences..."
+              placeholder="Search events..."
               disabled
               className="pl-10 w-64 bg-gray-100"
             />
@@ -43,7 +43,7 @@ const ExperienceTableSkeleton = () => {
         {/* Action Buttons Skeleton */}
         <Button size="sm" disabled>
           <Plus className="h-4 w-4 mr-2" />
-          Add Experience
+          Add Event
         </Button>
       </div>
 
@@ -55,11 +55,10 @@ const ExperienceTableSkeleton = () => {
               <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead>Reviews</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Organizer</TableHead>
+              <TableHead>Start Date</TableHead>
+              <TableHead>End Date</TableHead>
               <TableHead>Last Updated</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -85,33 +84,22 @@ const ExperienceTableSkeleton = () => {
                   </div>
                 </TableCell>
 
-                {/* Address Skeleton */}
+                {/* Location Skeleton */}
                 <TableCell>
                   <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
                 </TableCell>
 
-                {/* Price Skeleton */}
+                {/* Organizer Skeleton */}
                 <TableCell>
-                  <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
                 </TableCell>
 
-                {/* Duration Skeleton */}
+                {/* Start Date Skeleton */}
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
-                  </div>
+                  <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
                 </TableCell>
 
-                {/* Rating Skeleton */}
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
-                  </div>
-                </TableCell>
-
-                {/* Reviews Skeleton */}
+                {/* End Date Skeleton */}
                 <TableCell>
                   <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
                 </TableCell>
@@ -159,4 +147,4 @@ const ExperienceTableSkeleton = () => {
   );
 };
 
-export default ExperienceTableSkeleton;
+export default EventTableSkeleton;

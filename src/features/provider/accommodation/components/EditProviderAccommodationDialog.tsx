@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, ImageIcon, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -62,6 +62,7 @@ export const EditProviderAccommodationDialog = ({
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const queryClient = useQueryClient();
   const { categories, loading: categoriesLoading } =
@@ -96,11 +97,13 @@ export const EditProviderAccommodationDialog = ({
         attraction_id: accommodation.attraction_id?.toString() || "",
       });
 
-      // Set existing thumbnail preview
+      // Set existing thumbnail preview and reset image error
       if (accommodation.thumbnail) {
         setThumbnailPreview(getImageUrl(accommodation.thumbnail));
+        setImageError(false);
       } else {
         setThumbnailPreview(null);
+        setImageError(false);
       }
       setThumbnailFile(null);
     }
@@ -152,6 +155,7 @@ export const EditProviderAccommodationDialog = ({
     const file = e.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
+      setImageError(false); // Reset image error when selecting new file
       const reader = new FileReader();
       reader.onloadend = () => setThumbnailPreview(reader.result as string);
       reader.readAsDataURL(file);
@@ -175,6 +179,7 @@ export const EditProviderAccommodationDialog = ({
       // Reset form and preview when closing
       setThumbnailFile(null);
       setThumbnailPreview(null);
+      setImageError(false);
     }
   };
 
@@ -182,8 +187,17 @@ export const EditProviderAccommodationDialog = ({
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
       <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader>
+        <AlertDialogHeader className="relative">
           <AlertDialogTitle>Edit Accommodation</AlertDialogTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-gray-100"
+            onClick={() => handleOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </AlertDialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -357,11 +371,37 @@ export const EditProviderAccommodationDialog = ({
               {thumbnailPreview && (
                 <Card className="w-full">
                   <CardContent className="p-2">
-                    <img
-                      src={thumbnailPreview}
-                      alt="Thumbnail preview"
-                      className="w-full h-32 object-cover rounded"
-                    />
+                    {!imageError ? (
+                      <img
+                        src={thumbnailPreview}
+                        alt="Thumbnail preview"
+                        onError={() => {
+                          console.log(
+                            "Thumbnail preview failed to load, showing fallback"
+                          );
+                          setImageError(true);
+                        }}
+                        className="w-full h-32 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
+                        <div className="text-center">
+                          <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500 mb-2">
+                            Preview not available
+                          </p>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setImageError(false)}
+                            className="text-xs"
+                          >
+                            Retry
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}

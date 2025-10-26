@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { providerAccommodationService } from "../services/accommodationService";
 import { toastNotification } from "@/components/custom/ToastNotification";
 import type { Room } from "../types/accommodationTypes";
@@ -70,7 +71,7 @@ export const DeleteProviderRoomDialog = ({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
-        <AlertDialogHeader>
+        <AlertDialogHeader className="relative">
           <div className="flex items-center space-x-2">
             <div>
               <AlertDialogTitle>Delete Room</AlertDialogTitle>
@@ -79,6 +80,15 @@ export const DeleteProviderRoomDialog = ({
               </AlertDialogDescription>
             </div>
           </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-gray-100"
+            onClick={() => setOpen(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </AlertDialogHeader>
 
         <div className="py-4">

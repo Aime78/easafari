@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, ImageIcon, RotateCcw, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -62,6 +62,7 @@ export const EditProviderExperienceDialog = ({
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const queryClient = useQueryClient();
   const { categories, loading: categoriesLoading } =
@@ -100,6 +101,7 @@ export const EditProviderExperienceDialog = ({
       // Set existing thumbnail preview
       if (experience.thumbnail) {
         setThumbnailPreview(getImageUrl(experience.thumbnail));
+        setImageError(false); // Reset error when loading existing image
       } else {
         setThumbnailPreview(null);
       }
@@ -146,10 +148,21 @@ export const EditProviderExperienceDialog = ({
     const file = e.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
+      setImageError(false); // Reset error when new file is selected
       const reader = new FileReader();
       reader.onloadend = () => setThumbnailPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleImageError = () => {
+    console.log("Image failed to load, showing fallback UI");
+    setImageError(true);
+  };
+
+  const retryImage = () => {
+    console.log("Retrying image load");
+    setImageError(false);
   };
 
   const onSubmit = (data: EditProviderExperienceForm) => {
@@ -169,6 +182,7 @@ export const EditProviderExperienceDialog = ({
       // Reset form and preview when closing
       setThumbnailFile(null);
       setThumbnailPreview(null);
+      setImageError(false);
     }
   };
 
@@ -176,8 +190,17 @@ export const EditProviderExperienceDialog = ({
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
       <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader>
+        <AlertDialogHeader className="relative">
           <AlertDialogTitle>Edit Experience</AlertDialogTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-gray-100"
+            onClick={() => handleOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </AlertDialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -364,11 +387,31 @@ export const EditProviderExperienceDialog = ({
               {thumbnailPreview && (
                 <Card className="w-full">
                   <CardContent className="p-2">
-                    <img
-                      src={thumbnailPreview}
-                      alt="Thumbnail preview"
-                      className="w-full h-32 object-cover rounded"
-                    />
+                    {imageError ? (
+                      <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300">
+                        <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500 mb-2">
+                          Image failed to load
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={retryImage}
+                          className="flex items-center space-x-1"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                          <span>Retry</span>
+                        </Button>
+                      </div>
+                    ) : (
+                      <img
+                        src={thumbnailPreview}
+                        alt="Thumbnail preview"
+                        className="w-full h-32 object-cover rounded"
+                        onError={handleImageError}
+                      />
+                    )}
                   </CardContent>
                 </Card>
               )}
