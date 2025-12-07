@@ -7,6 +7,7 @@ import { lazy, Suspense } from "react";
 import { AdminLayout } from "@/layouts/admin";
 import { ProviderLayout } from "@/layouts/provider";
 import ProtectedRoute from "@/components/custom/ProtectedRoute";
+import PageLoader from "@/components/custom/PageLoader";
 import MarketPage from "@/features/market/pages/MarketPage";
 
 const LoginPage = lazy(() =>
@@ -47,8 +48,8 @@ const ProviderLoginPage = lazy(() =>
 );
 
 const ProviderDashboardPage = lazy(() =>
-  import("@/features/admin/attraction").then((module) => ({
-    default: module.AttractionsPage, // Temporary - replace with actual dashboard
+  import("@/features/provider/dashboard").then((module) => ({
+    default: module.ProviderDashboardPage,
   }))
 );
 const ProviderAttractionsPage = lazy(() =>
@@ -98,7 +99,7 @@ const router = createBrowserRouter([
   {
     path: "/admin/login",
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<PageLoader />}>
         <LoginPage />
       </Suspense>
     ),
@@ -106,7 +107,7 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<PageLoader />}>
         <ProviderRegisterPage />
       </Suspense>
     ),
@@ -114,7 +115,7 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<PageLoader />}>
         <ProviderLoginPage />
       </Suspense>
     ),
@@ -136,7 +137,7 @@ const router = createBrowserRouter([
       {
         path: "attractions",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <AdminAttractionsPage />
           </Suspense>
         ),
@@ -144,7 +145,7 @@ const router = createBrowserRouter([
       {
         path: "attractions/:categorySlug",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <AdminAttractionsPage />
           </Suspense>
         ),
@@ -152,7 +153,7 @@ const router = createBrowserRouter([
       {
         path: "accommodations",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <AdminAccommodationsPage />
           </Suspense>
         ),
@@ -160,7 +161,7 @@ const router = createBrowserRouter([
       {
         path: "accommodations/:categorySlug",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <AdminAccommodationsPage />
           </Suspense>
         ),
@@ -168,7 +169,7 @@ const router = createBrowserRouter([
       {
         path: "experiences",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <AdminExperiencesPage />
           </Suspense>
         ),
@@ -176,7 +177,7 @@ const router = createBrowserRouter([
       {
         path: "experiences/:categorySlug",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <AdminExperiencesPage />
           </Suspense>
         ),
@@ -200,7 +201,7 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderDashboardPage />
           </Suspense>
         ),
@@ -208,7 +209,7 @@ const router = createBrowserRouter([
       {
         path: "market",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <MarketPage />
             {/*  <TestMarketApi />*/}
           </Suspense>
@@ -217,7 +218,7 @@ const router = createBrowserRouter([
       {
         path: "attractions",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderAttractionsPage />
           </Suspense>
         ),
@@ -225,7 +226,7 @@ const router = createBrowserRouter([
       {
         path: "attractions/:id",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderAttractionsPage />
           </Suspense>
         ),
@@ -233,7 +234,7 @@ const router = createBrowserRouter([
       {
         path: "accommodations",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderAccommodationsPage />
           </Suspense>
         ),
@@ -241,7 +242,7 @@ const router = createBrowserRouter([
       {
         path: "accommodations/:id",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderAccommodationDetailsPage />
           </Suspense>
         ),
@@ -249,7 +250,7 @@ const router = createBrowserRouter([
       {
         path: "experiences",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderExperiencesPage />
           </Suspense>
         ),
@@ -257,7 +258,7 @@ const router = createBrowserRouter([
       {
         path: "experiences/:id",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderExperiencesPage />
           </Suspense>
         ),
@@ -265,7 +266,7 @@ const router = createBrowserRouter([
       {
         path: "events",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderEventsPage />
           </Suspense>
         ),
@@ -273,7 +274,7 @@ const router = createBrowserRouter([
       {
         path: "events/:id",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderEventDetailsPage />
           </Suspense>
         ),
@@ -281,7 +282,7 @@ const router = createBrowserRouter([
       {
         path: "bookings",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderBookingsPage />
           </Suspense>
         ),
@@ -289,7 +290,7 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<PageLoader />}>
             <ProviderSettingsPage />
           </Suspense>
         ),
