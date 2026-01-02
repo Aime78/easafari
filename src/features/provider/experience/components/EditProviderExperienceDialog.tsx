@@ -87,6 +87,12 @@ export const EditProviderExperienceDialog = ({
   // Populate form with experience data when dialog opens
   useEffect(() => {
     if (open && experience) {
+      // Extract attraction_id from the attractions array if it exists
+      const attractionId =
+        experience.attractions?.[0]?.id?.toString() ||
+        experience.attraction_id?.toString() ||
+        "";
+
       form.reset({
         name: experience.name,
         description: experience.description,
@@ -95,7 +101,7 @@ export const EditProviderExperienceDialog = ({
         duration: experience.duration,
         whats_included: experience.whats_included,
         experience_category_id: experience.experience_category_id.toString(),
-        attraction_id: experience.attraction_id?.toString() || "",
+        attraction_id: attractionId,
       });
 
       // Set existing thumbnail preview

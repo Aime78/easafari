@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus,
   Search,
@@ -42,33 +43,56 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { AddAttractionDialog } from "./AddAttractionDialog";
+import { useAttractions } from "../hooks/useAttraction";
+import AttractionTableSkeleton from "./AttractionTableSkeleton";
 import type { Attraction, AttractionCategory } from "../types/attractionTypes";
 import { getImageUrl } from "@/lib/imageUtils";
 
 interface AttractionTableProps {
-  attractions: Attraction[];
-  selectedCategory: AttractionCategory | null;
+  categories: AttractionCategory[];
 }
 
-const AttractionTable = ({
-  attractions,
-  selectedCategory,
-}: AttractionTableProps) => {
+const AttractionTable = ({ categories }: AttractionTableProps) => {
+  const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
+  // Get the selected category based on active tab
+  const selectedCategory =
+    activeTab === "all"
+      ? null
+      : categories.find((cat) => cat.id.toString() === activeTab) || null;
+
+  const {
+    data: attractionsData,
+    isLoading: attractionsLoading,
+    error: attractionsError,
+  } = useAttractions(selectedCategory?.id);
+
+  // Helper function to ensure we have a valid array of attractions
+  const getAttractionsArray = (data: unknown): Attraction[] => {
+    if (!data) return [];
+
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    // Handle wrapped response structure
+    const dataObj = data as unknown as { data?: Attraction[] };
+    if (dataObj.data && Array.isArray(dataObj.data)) {
+      return dataObj.data;
+    }
+
+    return [];
+  };
+
+  const attractions = getAttractionsArray(attractionsData);
+
   const getFilteredAttractions = () => {
     let filtered = attractions;
-
-    if (selectedCategory) {
-      filtered = filtered.filter(
-        (attraction) =>
-          attraction.attraction_category_id === selectedCategory.id
-      );
-    }
 
     if (searchTerm.trim()) {
       filtered = filtered.filter(
@@ -94,6 +118,12 @@ const AttractionTable = ({
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setCurrentPage(1);
+    setSearchTerm("");
   };
 
   const goToPage = (page: number) => {
@@ -234,188 +264,228 @@ const AttractionTable = ({
         </AddAttractionDialog>
       </div>
 
-      {currentAttractions.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <>
-          <Table>
-            <TableHeader className="bg-gray-100 rounded-t-md">
-              <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Reviews</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentAttractions.map((attraction) => (
-                <TableRow key={attraction.id}>
-                  <TableCell>
-                    {attraction.thumbnail &&
-                    !imageErrors.has(attraction.id.toString()) ? (
-                      <img
-                        src={getImageUrl(attraction.thumbnail)}
-                        alt={attraction.name}
-                        className="w-12 h-12 object-cover rounded-md"
-                        onError={() =>
-                          handleImageError(attraction.id.toString())
-                        }
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
-                        <ImageIcon className="w-6 h-6 text-gray-400" />
-                        {imageErrors.has(attraction.id.toString()) && (
-                          <button
-                            onClick={(e) =>
-                              retryImage(attraction.id.toString(), e)
-                            }
-                            className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
-                            title="Retry loading image"
-                          >
-                            <RotateCcw className="w-4 h-4 text-white" />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {attraction.name}
-                  </TableCell>
-                  <TableCell className="text-gray-600 max-w-xs truncate">
-                    {attraction.description}
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {attraction.address}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      {attraction.rating ? (
-                        <>
-                          <span className="text-yellow-500 mr-1">★</span>
-                          <span>
-                            {attraction.rating
-                              ? attraction.rating.toFixed(1)
-                              : "N/A"}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-gray-600 text-center">-</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {attraction.reviews_count} reviews
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {new Date(attraction.updated_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
+        <TabsList>
+          <TabsTrigger
+            value="all"
+            className="cursor-pointer whitespace-nowrap px-4 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            All Attractions
+          </TabsTrigger>
+          {categories.map((category) => (
+            <TabsTrigger
+              key={category.id}
+              value={category.id.toString()}
+              className="cursor-pointer whitespace-nowrap px-4 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            >
+              {category.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-          {filteredAttractions.length > 0 && (
-            <div className="flex items-center justify-between px-2 py-4">
-              <div className="flex items-center space-x-2">
-                <p className="text-sm font-medium">Rows per page</p>
-                <Select
-                  value={itemsPerPage.toString()}
-                  onValueChange={(value) => {
-                    setItemsPerPage(Number(value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[70px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent side="top">
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center space-x-6 lg:space-x-8">
-                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                  Page {currentPage} of {totalPages}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to{" "}
-                  {Math.min(endIndex, filteredAttractions.length)} of{" "}
-                  {filteredAttractions.length} results
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    className="hidden h-8 w-8 p-0 lg:flex"
-                    onClick={() => goToPage(1)}
-                    disabled={currentPage === 1}
-                  >
-                    <span className="sr-only">Go to first page</span>
-                    <ChevronsLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-8 w-8 p-0"
-                    onClick={() => goToPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    <span className="sr-only">Go to previous page</span>
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-8 w-8 p-0"
-                    onClick={() => goToPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    <span className="sr-only">Go to next page</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="hidden h-8 w-8 p-0 lg:flex"
-                    onClick={() => goToPage(totalPages)}
-                    disabled={currentPage === totalPages}
-                  >
-                    <span className="sr-only">Go to last page</span>
-                    <ChevronsRight className="h-4 w-4" />
-                  </Button>
-                </div>
+        <TabsContent value={activeTab} className="mt-0">
+          {attractionsLoading ? (
+            <AttractionTableSkeleton />
+          ) : attractionsError ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="text-center">
+                <p className="text-red-600 mb-2">
+                  Error loading{" "}
+                  {selectedCategory
+                    ? selectedCategory.name.toLowerCase()
+                    : "attractions"}
+                </p>
+                <p className="text-gray-600 text-sm">Please try again later.</p>
               </div>
             </div>
+          ) : currentAttractions.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <>
+              <Table>
+                <TableHeader className="bg-gray-100 rounded-t-md">
+                  <TableRow>
+                    <TableHead>Image</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Address</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Reviews</TableHead>
+                    <TableHead>Last Updated</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {currentAttractions.map((attraction) => (
+                    <TableRow key={attraction.id}>
+                      <TableCell>
+                        {attraction.thumbnail &&
+                        !imageErrors.has(attraction.id.toString()) ? (
+                          <img
+                            src={getImageUrl(attraction.thumbnail)}
+                            alt={attraction.name}
+                            className="w-12 h-12 object-cover rounded-md"
+                            onError={() =>
+                              handleImageError(attraction.id.toString())
+                            }
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center group relative">
+                            <ImageIcon className="w-6 h-6 text-gray-400" />
+                            {imageErrors.has(attraction.id.toString()) && (
+                              <button
+                                onClick={(e) =>
+                                  retryImage(attraction.id.toString(), e)
+                                }
+                                className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                                title="Retry loading image"
+                              >
+                                <RotateCcw className="w-4 h-4 text-white" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {attraction.name}
+                      </TableCell>
+                      <TableCell className="text-gray-600 max-w-xs truncate">
+                        {attraction.description}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {attraction.address}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          {attraction.rating ? (
+                            <>
+                              <span className="text-yellow-500 mr-1">★</span>
+                              <span>
+                                {attraction.rating
+                                  ? attraction.rating.toFixed(1)
+                                  : "N/A"}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-gray-600 text-center">-</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {attraction.reviews_count} reviews
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {new Date(attraction.updated_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {filteredAttractions.length > 0 && (
+                <div className="flex items-center justify-between px-2 py-4">
+                  <div className="flex items-center space-x-2">
+                    <p className="text-sm font-medium">Rows per page</p>
+                    <Select
+                      value={itemsPerPage.toString()}
+                      onValueChange={(value) => {
+                        setItemsPerPage(Number(value));
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-[70px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent side="top">
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center space-x-6 lg:space-x-8">
+                    <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Showing {startIndex + 1} to{" "}
+                      {Math.min(endIndex, filteredAttractions.length)} of{" "}
+                      {filteredAttractions.length} results
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        className="hidden h-8 w-8 p-0 lg:flex"
+                        onClick={() => goToPage(1)}
+                        disabled={currentPage === 1}
+                      >
+                        <span className="sr-only">Go to first page</span>
+                        <ChevronsLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-8 w-8 p-0"
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
+                        <span className="sr-only">Go to previous page</span>
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-8 w-8 p-0"
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
+                        <span className="sr-only">Go to next page</span>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="hidden h-8 w-8 p-0 lg:flex"
+                        onClick={() => goToPage(totalPages)}
+                        disabled={currentPage === totalPages}
+                      >
+                        <span className="sr-only">Go to last page</span>
+                        <ChevronsRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
+        </TabsContent>
+      </Tabs>
     </Card>
   );
 };

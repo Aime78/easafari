@@ -11,11 +11,8 @@ import {
 
 import { NavLink } from "react-router-dom";
 import logo from "@/assets/logo.png";
-import { useProviderProfile } from "@/features/provider/profile/hooks/useProvider";
 
 const ProviderSidebar = () => {
-  const { data: providerProfile } = useProviderProfile();
-
   const getLinkClassName = ({ isActive }: { isActive: boolean }) =>
     `px-6 py-2 rounded-lg flex items-center gap-2 ${
       isActive
@@ -47,13 +44,10 @@ const ProviderSidebar = () => {
     },
   };
 
-  // Get enabled services from provider profile services array
-  const enabledServices = providerProfile?.services
-    ? providerProfile.services
-        .filter((service) => service.active === 1) // Only active services
-        .map((service) => service.code as keyof typeof serviceConfig)
-        .filter((serviceCode) => serviceConfig[serviceCode]) // Only include services that exist in config
-    : [];
+  // Show all services by default
+  const allServices = Object.keys(serviceConfig) as Array<
+    keyof typeof serviceConfig
+  >;
 
   return (
     <div className="bg-[#f6f8fc] flex flex-col">
@@ -72,11 +66,9 @@ const ProviderSidebar = () => {
             <span>Dashboard</span>
           </NavLink>
 
-          {/* Dynamically render enabled services */}
-          {enabledServices.map((serviceName) => {
+          {/* Render all services */}
+          {allServices.map((serviceName) => {
             const service = serviceConfig[serviceName];
-            if (!service) return null; // Safety check
-
             const IconComponent = service.icon;
 
             return (

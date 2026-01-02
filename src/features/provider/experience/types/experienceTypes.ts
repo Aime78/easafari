@@ -14,6 +14,7 @@ export interface Experience {
   excluded: string;
   experience_category_id: number;
   attraction_id?: number; // Added for attraction association
+  attractions?: Attraction[]; // Array of associated attractions
   tour_provider_id?: number;
   created_at: string;
   updated_at: string;

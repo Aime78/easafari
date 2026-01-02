@@ -18,7 +18,6 @@ export {
   useUpdateProviderAccommodation,
   useDeleteProviderAccommodation,
   useProviderAccommodationCategories,
-  useProviderAttractions,
 } from "./hooks/useProviderAccommodation";
 
 // Services

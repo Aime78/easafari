@@ -43,7 +43,6 @@ export const createProviderAccommodationSchema = object({
     ),
   amenities: string().min(1, "Amenities are required"),
   accommodation_category_id: string().min(1, "Category is required"),
-  attraction_id: string().min(1, "Attraction is required"),
 });
 
 export const createProviderAccommodationCategorySchema = object({

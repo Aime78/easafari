@@ -120,3 +120,76 @@ export const useProviderAttractions = () => {
     queryFn: providerEventService.getAttractions,
   });
 };
+
+export const useCreateProviderTicket = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: providerEventService.createTicket,
+    onSuccess: (_, variables) => {
+      // Invalidate the specific event to refetch with new tickets
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.provider.events.detail(
+          variables.event_id.toString()
+        ),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.provider.events.lists(),
+      });
+    },
+    onError: (error) => {
+      console.error("Create ticket failed:", error);
+    },
+  });
+};
+
+export const useUpdateProviderTicket = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: {
+        event_id: number;
+        name: string;
+        price: string;
+        quantity: string;
+        remaining: string;
+        is_active: string;
+      };
+    }) => providerEventService.updateTicket(id, data),
+    onSuccess: (_, variables) => {
+      // Invalidate the specific event to refetch with updated tickets
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.provider.events.detail(
+          variables.data.event_id.toString()
+        ),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.provider.events.lists(),
+      });
+    },
+    onError: (error) => {
+      console.error("Update ticket failed:", error);
+    },
+  });
+};
+export const useDeleteProviderTicket = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: providerEventService.deleteTicket,
+    onSuccess: () => {
+      // Invalidate both event detail and events list to refresh tickets data
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.provider.events.lists(),
+      });
+    },
+    onError: (error) => {
+      console.error("Delete ticket failed:", error);
+    },
+  });
+};
