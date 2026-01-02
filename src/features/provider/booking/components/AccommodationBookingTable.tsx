@@ -44,7 +44,6 @@ const AccommodationBookingTable = ({
 }: AccommodationBookingTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
@@ -68,12 +67,20 @@ const AccommodationBookingTable = ({
     )} - ${checkOut.toLocaleDateString("en-US", options)}`;
   };
 
-  // Format nights and rooms
-  const formatRoomsAndNights = (rooms: number, nights: number) => {
-    const roomText = rooms === 1 ? "room" : "rooms";
-    const nightText = nights === 1 ? "night" : "nights";
+  // Calculate total rooms quantity
+  const getTotalRoomsQty = (
+    rooms: { qty: number; price: number; room_id: number }[]
+  ) => {
+    return rooms.reduce((total, room) => total + room.qty, 0);
+  };
 
-    return `${rooms} ${roomText}, ${nights} ${nightText}`;
+  // Calculate nights between check-in and check-out
+  const calculateNights = (checkIn: string, checkOut: string) => {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const diffTime = Math.abs(checkOutDate.getTime() - checkInDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   // Get status badge color
@@ -101,13 +108,6 @@ const AccommodationBookingTable = ({
     // Apply status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter((booking) => booking.status === statusFilter);
-    }
-
-    // Apply payment method filter
-    if (paymentMethodFilter !== "all") {
-      filtered = filtered.filter(
-        (booking) => booking.payment_method === paymentMethodFilter
-      );
     }
 
     // Apply search filter
@@ -156,10 +156,7 @@ const AccommodationBookingTable = ({
 
   // Empty state component (following consistent pattern)
   const EmptyState = () => {
-    const isFiltered =
-      searchTerm.trim() ||
-      statusFilter !== "all" ||
-      paymentMethodFilter !== "all";
+    const isFiltered = searchTerm.trim() || statusFilter !== "all";
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
@@ -234,22 +231,6 @@ const AccommodationBookingTable = ({
               <SelectItem value="refunded">Refunded</SelectItem>
             </SelectContent>
           </Select>
-
-          {/* Payment Method Filter */}
-          <Select
-            value={paymentMethodFilter}
-            onValueChange={setPaymentMethodFilter}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Payment" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Methods</SelectItem>
-              <SelectItem value="Momo">Mobile Money</SelectItem>
-              <SelectItem value="Card">Card</SelectItem>
-              <SelectItem value="Bank">Bank Transfer</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -265,10 +246,10 @@ const AccommodationBookingTable = ({
                   <TableHead>Accommodation</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Check-in/Check-out</TableHead>
-                  <TableHead>Rooms & Nights</TableHead>
+                  <TableHead>Guests</TableHead>
+                  <TableHead>Total Rooms</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Payment Method</TableHead>
+                  <TableHead>Total Price</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -334,27 +315,41 @@ const AccommodationBookingTable = ({
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4 text-gray-400" />
                         <span className="text-sm font-medium">
-                          {formatDateRange(
-                            booking.check_in_date,
-                            booking.check_out_date
-                          )}
+                          {formatDateRange(booking.check_in, booking.check_out)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {calculateNights(booking.check_in, booking.check_out)}{" "}
+                        {calculateNights(
+                          booking.check_in,
+                          booking.check_out
+                        ) === 1
+                          ? "night"
+                          : "nights"}
+                      </p>
+                    </TableCell>
+
+                    {/* Guests */}
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium">
+                          {booking.guest_count}{" "}
+                          {booking.guest_count === 1 ? "guest" : "guests"}
                         </span>
                       </div>
                     </TableCell>
 
-                    {/* Rooms & Nights */}
+                    {/* Total Rooms */}
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Bed className="h-4 w-4 text-gray-400" />
                         <span className="text-sm">
-                          {formatRoomsAndNights(booking.rooms, booking.nights)}
+                          {getTotalRoomsQty(booking.rooms)}{" "}
+                          {getTotalRoomsQty(booking.rooms) === 1
+                            ? "room"
+                            : "rooms"}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {booking.adults} adults{" "}
-                        {booking.children > 0 &&
-                          `, ${booking.children} children`}
-                      </p>
                     </TableCell>
 
                     {/* Status */}
@@ -364,23 +359,13 @@ const AccommodationBookingTable = ({
                       </Badge>
                     </TableCell>
 
-                    {/* Amount */}
+                    {/* Total Price */}
                     <TableCell>
                       <div>
                         <p className="font-medium text-gray-900">
-                          ${booking.total}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          (inc. ${booking.service_fee} fee)
+                          ${booking.total_price}
                         </p>
                       </div>
-                    </TableCell>
-
-                    {/* Payment Method */}
-                    <TableCell>
-                      <span className="text-sm text-gray-900">
-                        {booking.payment_method}
-                      </span>
                     </TableCell>
                   </TableRow>
                 ))}

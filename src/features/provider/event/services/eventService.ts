@@ -36,4 +36,26 @@ export const providerEventService = {
       },
     }),
   delete: (id: string) => api.delete(`/provider/events/${id}`),
+
+  // Ticket operations
+  createTicket: (data: {
+    event_id: number;
+    name: string;
+    price: string;
+    quantity: string;
+    remaining: string;
+    is_active: string;
+  }) => api.post("/provider/tickets", data),
+  updateTicket: (
+    id: number,
+    data: {
+      event_id: number;
+      name: string;
+      price: string;
+      quantity: string;
+      remaining: string;
+      is_active: string;
+    }
+  ) => api.post(`/provider/tickets/${id}`, data),
+  deleteTicket: (id: number) => api.delete(`/provider/tickets/${id}`),
 };

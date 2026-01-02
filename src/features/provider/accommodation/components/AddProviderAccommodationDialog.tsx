@@ -31,10 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { providerAccommodationService } from "../services/accommodationService";
 import { createProviderAccommodationSchema } from "../schemas/providerAccommodationSchemas";
-import {
-  useProviderAccommodationCategories,
-  useProviderAttractions,
-} from "../hooks/useProviderAccommodation";
+import { useProviderAccommodationCategories } from "../hooks/useProviderAccommodation";
 import { toastNotification } from "@/components/custom/ToastNotification";
 
 type AddProviderAccommodationForm = z.infer<
@@ -57,8 +54,6 @@ export const AddProviderAccommodationDialog = ({
   const queryClient = useQueryClient();
   const { categories, loading: categoriesLoading } =
     useProviderAccommodationCategories();
-  const { data: attractions = [], isLoading: attractionsLoading } =
-    useProviderAttractions();
   const form = useForm<AddProviderAccommodationForm>({
     resolver: zodResolver(createProviderAccommodationSchema),
     defaultValues: {
@@ -71,7 +66,6 @@ export const AddProviderAccommodationDialog = ({
       rating: "",
       amenities: "",
       accommodation_category_id: "",
-      attraction_id: "",
     },
   });
 
@@ -92,7 +86,6 @@ export const AddProviderAccommodationDialog = ({
         "accommodation_category_id",
         data.accommodation_category_id
       );
-      formData.append("attractions", JSON.stringify([data.attraction_id]));
       if (data.thumbnail) formData.append("thumbnail", data.thumbnail);
       return providerAccommodationService.create(formData);
     },
@@ -209,42 +202,6 @@ export const AddProviderAccommodationDialog = ({
                         categories.map((cat) => (
                           <SelectItem key={cat.id} value={cat.id.toString()}>
                             {cat.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="attraction_id"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Attraction</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select an attraction" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {attractionsLoading ? (
-                        <SelectItem value="loading" disabled>
-                          Loading attractions...
-                        </SelectItem>
-                      ) : (
-                        attractions.map((attraction) => (
-                          <SelectItem
-                            key={attraction.id}
-                            value={attraction.id.toString()}
-                          >
-                            {attraction.name}
                           </SelectItem>
                         ))
                       )}

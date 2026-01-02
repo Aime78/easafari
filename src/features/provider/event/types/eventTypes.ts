@@ -1,3 +1,15 @@
+export interface Ticket {
+  id: number;
+  event_id: number;
+  name: string;
+  price: number | string;
+  quantity: number | string;
+  remaining: number | string;
+  is_active: number | string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Event {
   id: number;
   name: string;
@@ -12,7 +24,7 @@ export interface Event {
   event_category_id?: number; // Added back for category filtering
   tour_provider_id: number;
   is_active: number;
-  tickets: unknown[]; // From API response
+  tickets: Ticket[]; // From API response
   tour_provider?: TourProvider; // Optional, only present in details
   created_at: string;
   updated_at: string;

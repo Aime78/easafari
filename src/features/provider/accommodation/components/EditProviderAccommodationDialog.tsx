@@ -31,10 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { providerAccommodationService } from "../services/accommodationService";
 import { createProviderAccommodationSchema } from "../schemas/providerAccommodationSchemas";
-import {
-  useProviderAccommodationCategories,
-  useProviderAttractions,
-} from "../hooks/useProviderAccommodation";
+import { useProviderAccommodationCategories } from "../hooks/useProviderAccommodation";
 import { toastNotification } from "@/components/custom/ToastNotification";
 import { getImageUrl } from "@/lib/imageUtils";
 import type { Accommodation } from "../types/accommodationTypes";
@@ -67,8 +64,6 @@ export const EditProviderAccommodationDialog = ({
   const queryClient = useQueryClient();
   const { categories, loading: categoriesLoading } =
     useProviderAccommodationCategories();
-  const { data: attractions = [], isLoading: attractionsLoading } =
-    useProviderAttractions();
 
   const form = useForm<EditProviderAccommodationForm>({
     resolver: zodResolver(createProviderAccommodationSchema),
@@ -77,9 +72,11 @@ export const EditProviderAccommodationDialog = ({
       description: "",
       address: "",
       price: "",
+      latitude: "",
+      longitude: "",
+      rating: "",
       amenities: "",
       accommodation_category_id: "",
-      attraction_id: "",
     },
   });
 
@@ -91,10 +88,12 @@ export const EditProviderAccommodationDialog = ({
         description: accommodation.description,
         address: accommodation.address,
         price: accommodation.price.toString(),
+        latitude: accommodation.latitude?.toString() || "",
+        longitude: accommodation.longitude?.toString() || "",
+        rating: accommodation.rating?.toString() || "",
         amenities: accommodation.amenities,
         accommodation_category_id:
           accommodation.accommodation_category_id.toString(),
-        attraction_id: accommodation.attraction_id?.toString() || "",
       });
 
       // Set existing thumbnail preview and reset image error
@@ -118,12 +117,14 @@ export const EditProviderAccommodationDialog = ({
       formData.append("description", data.description);
       formData.append("address", data.address);
       formData.append("price", data.price);
+      formData.append("latitude", data.latitude);
+      formData.append("longitude", data.longitude);
+      formData.append("rating", data.rating);
       formData.append("amenities", data.amenities);
       formData.append(
         "accommodation_category_id",
         data.accommodation_category_id
       );
-      formData.append("attractions", JSON.stringify([data.attraction_id]));
       if (data.thumbnail) formData.append("thumbnail", data.thumbnail);
       return providerAccommodationService.update(
         accommodation.id.toString(),
@@ -262,39 +263,6 @@ export const EditProviderAccommodationDialog = ({
               )}
             />
             <FormField
-              name="attraction_id"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Attraction</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select an attraction" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {attractionsLoading ? (
-                        <SelectItem value="loading" disabled>
-                          Loading attractions...
-                        </SelectItem>
-                      ) : (
-                        attractions.map((attraction) => (
-                          <SelectItem
-                            key={attraction.id}
-                            value={attraction.id.toString()}
-                          >
-                            {attraction.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
               name="address"
               control={form.control}
               render={({ field }) => (
@@ -302,6 +270,64 @@ export const EditProviderAccommodationDialog = ({
                   <FormLabel>Address</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter address" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                name="latitude"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="-1.2921"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="longitude"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="36.8219"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              name="rating"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rating (0-5)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      placeholder="4.5"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

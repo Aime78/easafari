@@ -116,10 +116,3 @@ export const useProviderAccommodationCategories = () => {
     createError: createCategoryMutation.error,
   };
 };
-
-export const useProviderAttractions = () => {
-  return useQuery({
-    queryKey: queryKeys.attractions.lists(),
-    queryFn: providerAccommodationService.getAttractions,
-  });
-};
