@@ -63,6 +63,7 @@ export const queryKeys = {
     all: ["provider"] as const,
     profile: () => [...queryKeys.provider.all, "profile"] as const,
     services: () => [...queryKeys.provider.all, "services"] as const,
+    dashboard: () => [...queryKeys.provider.all, "dashboard"] as const,
     details: () => [...queryKeys.provider.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.provider.details(), id] as const,
     experiences: {

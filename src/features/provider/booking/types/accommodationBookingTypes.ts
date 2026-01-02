@@ -1,17 +1,19 @@
+export interface RoomBooking {
+  qty: number;
+  price: number;
+  room_id: number;
+}
+
 export interface AccommodationBooking {
   id: number;
-  check_in_date: string;
-  check_out_date: string;
-  adults: number;
-  children: number;
-  rooms: number;
-  nights: number;
-  payment_method: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled" | "refunded";
-  total: number;
-  service_fee: number;
-  accommodation_id: number;
   user_id: number;
+  accommodation_id: number;
+  check_in: string;
+  check_out: string;
+  guest_count: number;
+  total_price: string;
+  rooms: RoomBooking[];
+  status: "pending" | "confirmed" | "completed" | "cancelled" | "refunded";
   created_at: string;
   updated_at: string;
   accommodation: BookingAccommodation;
